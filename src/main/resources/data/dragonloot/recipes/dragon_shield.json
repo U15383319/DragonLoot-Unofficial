@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "base": {
+    "item": "minecraft:shield"
+  },
+  "addition": {
+    "item": "dragonloot:dragon_scale"
+  },
+  "result": {
+    "item": "dragonloot:dragon_shield"
+  },
+  "template": {
+    "item": "dragonloot:dragon_upgrade_smithing_template"
+  }
+}
