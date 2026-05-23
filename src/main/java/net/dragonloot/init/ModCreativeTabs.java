@@ -33,6 +33,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.DRAGON_BOW.get());
                         output.accept(ModItems.DRAGON_CROSSBOW.get());
                         output.accept(ModItems.DRAGON_TRIDENT.get());
+                        output.accept(ModItems.DRAGON_SHIELD.get());
                         output.accept(ModItems.DRAGON_HORSE_ARMOR.get());
                     }).build());
 

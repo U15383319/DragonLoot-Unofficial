@@ -54,6 +54,8 @@ public final class ModItems {
             () -> new DragonCrossbowItem(new Item.Properties().durability(DragonToolMaterial.INSTANCE.getUses()).fireResistant()));
     public static final RegistryObject<Item> DRAGON_TRIDENT = ITEMS.register("dragon_trident",
             () -> new DragonTridentItem(new Item.Properties().durability(DragonToolMaterial.INSTANCE.getUses()).fireResistant()));
+    public static final RegistryObject<Item> DRAGON_SHIELD = ITEMS.register("dragon_shield",
+            () -> new DragonShieldItem(new Item.Properties().durability(DragonToolMaterial.INSTANCE.getUses()).fireResistant()));
 
     private ModItems() {
     }
