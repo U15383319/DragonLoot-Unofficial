@@ -1,6 +1,12 @@
 {
   "block.dragonloot.dragon_anvil": "Dragon Anvil",
   "item.dragonloot.dragon_scale": "Dragon Scale",
+  "item.dragonloot.dragon_upgrade_smithing_template": "Dragon Upgrade Smithing Template",
+  "upgrade.dragonloot.dragon_upgrade": "Dragon Upgrade",
+  "item.dragonloot.smithing_template.dragon_upgrade.applies_to": "Netherite Equipment and Winged Gear",
+  "item.dragonloot.smithing_template.dragon_upgrade.ingredients": "Dragon Scale",
+  "item.dragonloot.smithing_template.dragon_upgrade.base_slot_description": "Add netherite equipment, bows, crossbows, tridents, horse armor or winged chestplates",
+  "item.dragonloot.smithing_template.dragon_upgrade.additions_slot_description": "Add Dragon Scale",
   
   "item.dragonloot.dragon_helmet": "Dragon Scale Helmet",
   "item.dragonloot.dragon_chestplate": "Dragon Scale Chestplate",
