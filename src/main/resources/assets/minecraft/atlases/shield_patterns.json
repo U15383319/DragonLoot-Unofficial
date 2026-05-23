@@ -1,0 +1,8 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "dragonloot:entity/dragon_shield_base_nopattern"
+    }
+  ]
+}
