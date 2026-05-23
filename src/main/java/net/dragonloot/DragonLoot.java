@@ -11,8 +11,13 @@ import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
@@ -83,6 +88,18 @@ public class DragonLoot {
     public void onDragonAnvilRepair(AnvilRepairEvent event) {
         if (event.getEntity().containerMenu instanceof net.dragonloot.menu.DragonAnvilMenu) {
             event.setBreakChance(0.0F);
+        }
+    }
+
+    @SubscribeEvent
+    public void onLootTableLoad(LootTableLoadEvent event) {
+        if (new ResourceLocation("minecraft", "chests/end_city_treasure").equals(event.getName())) {
+            event.getTable().addPool(LootPool.lootPool()
+                    .name("dragonloot_dragon_upgrade_template")
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(LootItem.lootTableItem(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()))
+                    .when(LootItemRandomChanceCondition.randomChance(0.25F))
+                    .build());
         }
     }
 }

@@ -19,6 +19,7 @@ public final class ModCreativeTabs {
                     .displayItems((parameters, output) -> {
                         output.accept(ModItems.DRAGON_ANVIL.get());
                         output.accept(ModItems.DRAGON_SCALE.get());
+                        output.accept(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get());
                         output.accept(ModItems.DRAGON_HELMET.get());
                         output.accept(ModItems.DRAGON_CHESTPLATE.get());
                         output.accept(ModItems.DRAGON_LEGGINGS.get());

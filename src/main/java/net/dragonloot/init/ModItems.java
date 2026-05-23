@@ -1,19 +1,27 @@
 package net.dragonloot.init;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.dragonloot.DragonLoot;
 import net.dragonloot.item.*;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+
+import java.util.List;
 
 public final class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, DragonLoot.MOD_ID);
 
     public static final RegistryObject<Item> DRAGON_SCALE = ITEMS.register("dragon_scale",
             () -> new DragonScaleItem(new Item.Properties().fireResistant()));
+    public static final RegistryObject<Item> DRAGON_UPGRADE_SMITHING_TEMPLATE = ITEMS.register("dragon_upgrade_smithing_template",
+            ModItems::createDragonUpgradeTemplate);
     public static final RegistryObject<Item> DRAGON_ANVIL = ITEMS.register("dragon_anvil",
             () -> new BlockItem(ModBlocks.DRAGON_ANVIL.get(), new Item.Properties()));
     public static final RegistryObject<Item> DRAGON_HORSE_ARMOR = ITEMS.register("dragon_horse_armor",
@@ -48,5 +56,27 @@ public final class ModItems {
             () -> new DragonTridentItem(new Item.Properties().durability(DragonToolMaterial.INSTANCE.getUses()).fireResistant()));
 
     private ModItems() {
+    }
+
+    private static SmithingTemplateItem createDragonUpgradeTemplate() {
+        return new SmithingTemplateItem(
+                Component.translatable("item.dragonloot.smithing_template.dragon_upgrade.applies_to").withStyle(ChatFormatting.BLUE),
+                Component.translatable("item.dragonloot.smithing_template.dragon_upgrade.ingredients").withStyle(ChatFormatting.BLUE),
+                Component.translatable("upgrade.dragonloot.dragon_upgrade").withStyle(ChatFormatting.GRAY),
+                Component.translatable("item.dragonloot.smithing_template.dragon_upgrade.base_slot_description"),
+                Component.translatable("item.dragonloot.smithing_template.dragon_upgrade.additions_slot_description"),
+                List.of(
+                        new ResourceLocation("item/empty_armor_slot_helmet"),
+                        new ResourceLocation("item/empty_slot_sword"),
+                        new ResourceLocation("item/empty_armor_slot_chestplate"),
+                        new ResourceLocation("item/empty_slot_pickaxe"),
+                        new ResourceLocation("item/empty_armor_slot_leggings"),
+                        new ResourceLocation("item/empty_slot_axe"),
+                        new ResourceLocation("item/empty_armor_slot_boots"),
+                        new ResourceLocation("item/empty_slot_hoe"),
+                        new ResourceLocation("item/empty_slot_shovel")
+                ),
+                List.of(DragonLoot.id("item/dragon_scale"))
+        );
     }
 }
