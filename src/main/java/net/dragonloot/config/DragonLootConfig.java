@@ -20,6 +20,8 @@ public final class DragonLootConfig {
     private static final double DEFAULT_DRAGON_ITEM_BASE_DAMAGE = 5.0D;
     private static final int DEFAULT_DRAGON_TOOL_ENCHANTABILITY = 20;
     private static final boolean DEFAULT_DRAGON_ANVIL_NO_CAP = true;
+    private static final double DEFAULT_DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER = 0.4D;
+    private static final double DEFAULT_DRAGON_SWORD_ENTITY_REACH_BONUS = 0.5D;
 
     private static final ForgeConfigSpec.IntValue SCALE_MINIMUM_DROP_AMOUNT;
     private static final ForgeConfigSpec.IntValue ADDITIONAL_SCALES_PER_PLAYER;
@@ -36,6 +38,8 @@ public final class DragonLootConfig {
     private static final ForgeConfigSpec.DoubleValue DRAGON_ITEM_BASE_DAMAGE;
     private static final ForgeConfigSpec.IntValue DRAGON_TOOL_ENCHANTABILITY;
     private static final ForgeConfigSpec.BooleanValue DRAGON_ANVIL_NO_CAP;
+    private static final ForgeConfigSpec.DoubleValue DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER;
+    private static final ForgeConfigSpec.DoubleValue DRAGON_SWORD_ENTITY_REACH_BONUS;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -54,6 +58,12 @@ public final class DragonLootConfig {
         DRAGON_ITEM_BASE_DAMAGE = builder.defineInRange("dragon_item_base_damage", 5.0D, 0.0D, 100.0D);
         DRAGON_TOOL_ENCHANTABILITY = builder.defineInRange("dragon_tool_enchantability", 20, 0, 100);
         DRAGON_ANVIL_NO_CAP = builder.define("dragon_anvil_no_cap", true);
+        DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER = builder
+                .comment("Multiplier applied to dragon shield disable cooldown. 0.4 = 40% of the original cooldown.")
+                .defineInRange("dragon_shield_disable_cooldown_multiplier", 0.4D, 0.0D, 1.0D);
+        DRAGON_SWORD_ENTITY_REACH_BONUS = builder
+                .comment("Additional entity attack reach granted while the dragon sword is in the main hand.")
+                .defineInRange("dragon_sword_entity_reach_bonus", 0.5D, 0.0D, 16.0D);
         SPEC = builder.build();
     }
 
@@ -75,6 +85,8 @@ public final class DragonLootConfig {
     public static float itemBaseDamage() { return getOrDefault(DRAGON_ITEM_BASE_DAMAGE, DEFAULT_DRAGON_ITEM_BASE_DAMAGE).floatValue(); }
     public static int toolEnchantability() { return getOrDefault(DRAGON_TOOL_ENCHANTABILITY, DEFAULT_DRAGON_TOOL_ENCHANTABILITY); }
     public static boolean dragonAnvilNoCap() { return getOrDefault(DRAGON_ANVIL_NO_CAP, DEFAULT_DRAGON_ANVIL_NO_CAP); }
+    public static double dragonShieldDisableCooldownMultiplier() { return getOrDefault(DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER, DEFAULT_DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER); }
+    public static double dragonSwordEntityReachBonus() { return getOrDefault(DRAGON_SWORD_ENTITY_REACH_BONUS, DEFAULT_DRAGON_SWORD_ENTITY_REACH_BONUS); }
 
     private static <T> T getOrDefault(ForgeConfigSpec.ConfigValue<T> value, T fallback) {
         try {
