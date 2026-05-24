@@ -1,21 +1,32 @@
 package net.dragonloot.client;
 
 import net.dragonloot.DragonLoot;
+import net.dragonloot.client.render.DragonTridentBakedModel;
 import net.dragonloot.client.render.DragonTridentRenderer;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 @Mod.EventBusSubscriber(modid = DragonLoot.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class DragonLootClient {
+    private static final ModelResourceLocation DRAGON_TRIDENT_MODEL =
+            new ModelResourceLocation(DragonLoot.MOD_ID, "dragon_trident", "inventory");
+    private static final ModelResourceLocation DRAGON_TRIDENT_IN_HAND_MODEL =
+            new ModelResourceLocation(DragonLoot.MOD_ID, "dragon_trident_in_hand", "inventory");
+    private static final ModelResourceLocation DRAGON_TRIDENT_THROWING_MODEL =
+            new ModelResourceLocation(DragonLoot.MOD_ID, "dragon_trident_throwing", "inventory");
+
     private DragonLootClient() {
     }
 
@@ -46,5 +57,21 @@ public final class DragonLootClient {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.DRAGON_TRIDENT.get(), DragonTridentRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
+        event.register(DRAGON_TRIDENT_IN_HAND_MODEL);
+        event.register(DRAGON_TRIDENT_THROWING_MODEL);
+    }
+
+    @SubscribeEvent
+    public static void modifyBakedModels(ModelEvent.ModifyBakingResult event) {
+        BakedModel baseModel = event.getModels().get(DRAGON_TRIDENT_MODEL);
+        BakedModel inHandModel = event.getModels().get(DRAGON_TRIDENT_IN_HAND_MODEL);
+        BakedModel throwingModel = event.getModels().get(DRAGON_TRIDENT_THROWING_MODEL);
+        if (baseModel != null && inHandModel != null && throwingModel != null) {
+            event.getModels().put(DRAGON_TRIDENT_MODEL, new DragonTridentBakedModel(baseModel, inHandModel, throwingModel));
+        }
     }
 }

@@ -3,7 +3,9 @@ package net.dragonloot.item;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.dragonloot.config.DragonLootConfig;
+import net.dragonloot.client.render.DragonTridentItemRenderer;
 import net.dragonloot.entity.DragonTridentEntity;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
@@ -23,6 +25,9 @@ import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+
+import java.util.function.Consumer;
 
 public class DragonTridentItem extends TridentItem {
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
@@ -35,6 +40,21 @@ public class DragonTridentItem extends TridentItem {
         builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Tool modifier",
                 -2.9D, AttributeModifier.Operation.ADDITION));
         this.defaultModifiers = builder.build();
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            private DragonTridentItemRenderer renderer;
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) {
+                    renderer = new DragonTridentItemRenderer();
+                }
+                return renderer;
+            }
+        });
     }
 
     @Override
