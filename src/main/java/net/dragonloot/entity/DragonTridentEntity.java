@@ -1,5 +1,6 @@
 package net.dragonloot.entity;
 
+import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
 import net.minecraft.nbt.CompoundTag;
@@ -102,7 +103,7 @@ public class DragonTridentEntity extends AbstractArrow {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         Entity target = result.getEntity();
-        float damage = 8.0F;
+        float damage = (float) (8.0D + DragonLootConfig.itemBaseDamage() / 5.0D);
         if (target instanceof LivingEntity livingTarget) {
             damage += EnchantmentHelper.getDamageBonus(this.tridentStack, livingTarget.getMobType());
         }

@@ -6,10 +6,14 @@ import net.dragonloot.init.ModCreativeTabs;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
 import net.dragonloot.item.DragonCrossbowItem;
+import net.dragonloot.item.DragonShieldItem;
+import net.minecraft.util.Mth;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -21,16 +25,24 @@ import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @Mod(DragonLoot.MOD_ID)
 public class DragonLoot {
     public static final String MOD_ID = "dragonloot";
+    private final Set<UUID> adjustedDragonShieldCooldowns = new HashSet<>();
 
     public DragonLoot() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -89,6 +101,52 @@ public class DragonLoot {
         if (event.getEntity().containerMenu instanceof net.dragonloot.menu.DragonAnvilMenu) {
             event.setBreakChance(0.0F);
         }
+    }
+
+    @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || event.player.level().isClientSide) {
+            return;
+        }
+
+        UUID playerId = event.player.getUUID();
+        if (!event.player.getCooldowns().isOnCooldown(ModItems.DRAGON_SHIELD.get())) {
+            this.adjustedDragonShieldCooldowns.remove(playerId);
+            return;
+        }
+
+        if (!this.adjustedDragonShieldCooldowns.contains(playerId)
+                && event.player.getCooldowns().getCooldownPercent(ModItems.DRAGON_SHIELD.get(), 0.0F) > 0.75F) {
+            event.player.getCooldowns().addCooldown(ModItems.DRAGON_SHIELD.get(), this.getReducedDragonShieldCooldownTicks(event.player.getCooldowns()));
+            this.adjustedDragonShieldCooldowns.add(playerId);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private int getReducedDragonShieldCooldownTicks(ItemCooldowns itemCooldowns) {
+        try {
+            Map<Item, ?> cooldowns = ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, itemCooldowns, "f_41515_");
+            Integer tickCount = ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, itemCooldowns, "f_41516_");
+            Object cooldown = cooldowns == null ? null : cooldowns.get(ModItems.DRAGON_SHIELD.get());
+            if (cooldown == null || tickCount == null) {
+                return DragonShieldItem.FALLBACK_DISABLE_COOLDOWN_TICKS;
+            }
+
+            int startTime = getCooldownInstanceField(cooldown, "f_41533_");
+            int endTime = getCooldownInstanceField(cooldown, "f_41534_");
+            int originalDuration = Math.max(1, endTime - startTime);
+            int remainingDuration = Math.max(1, endTime - tickCount);
+            int reducedDuration = Math.max(1, Mth.ceil(originalDuration * DragonShieldItem.DISABLE_COOLDOWN_MULTIPLIER));
+            return Math.min(remainingDuration, reducedDuration);
+        } catch (RuntimeException | LinkageError ignored) {
+            return DragonShieldItem.FALLBACK_DISABLE_COOLDOWN_TICKS;
+        }
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static int getCooldownInstanceField(Object cooldown, String fieldName) {
+        Integer value = (Integer) ObfuscationReflectionHelper.getPrivateValue((Class) cooldown.getClass(), cooldown, fieldName);
+        return value == null ? 0 : value;
     }
 
     @SubscribeEvent
