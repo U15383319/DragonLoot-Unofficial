@@ -136,7 +136,7 @@ public class DragonLoot {
             int endTime = getCooldownInstanceField(cooldown, "f_41534_");
             int originalDuration = Math.max(1, endTime - startTime);
             int remainingDuration = Math.max(1, endTime - tickCount);
-            int reducedDuration = Math.max(1, Mth.ceil(originalDuration * DragonShieldItem.DISABLE_COOLDOWN_MULTIPLIER));
+            int reducedDuration = Math.max(1, Mth.ceil(originalDuration * DragonLootConfig.dragonShieldDisableCooldownMultiplier()));
             return Math.min(remainingDuration, reducedDuration);
         } catch (RuntimeException | LinkageError ignored) {
             return DragonShieldItem.FALLBACK_DISABLE_COOLDOWN_TICKS;
