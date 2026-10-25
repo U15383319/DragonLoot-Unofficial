@@ -14,6 +14,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.UpgradeRecipe;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class DragonSmithingRecipe extends UpgradeRecipe {
     private final Ingredient template;
@@ -84,7 +85,7 @@ public class DragonSmithingRecipe extends UpgradeRecipe {
         return true;
     }
 
-    public static class Serializer implements RecipeSerializer<DragonSmithingRecipe> {
+    public static class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<DragonSmithingRecipe> {
         @Override
         public DragonSmithingRecipe fromJson(ResourceLocation id, JsonObject json) {
             return new DragonSmithingRecipe(id, Ingredient.fromJson(json.get("template")),

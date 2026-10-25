@@ -4,6 +4,7 @@ import net.dragonloot.menu.DragonAnvilMenu;
 import net.dragonloot.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -27,6 +28,6 @@ public class DragonAnvilBlock extends AnvilBlock {
     @Nullable
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider((id, inventory, player) ->
-                new DragonAnvilMenu(id, inventory, ContainerLevelAccess.create(level, pos)), Component.translatable("container.repair"));
+                new DragonAnvilMenu(id, inventory, ContainerLevelAccess.create(level, pos)), new TranslatableComponent("container.repair"));
     }
 }

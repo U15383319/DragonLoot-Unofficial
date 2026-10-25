@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
+import java.util.Random;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,7 +44,7 @@ public class DragonTridentBakedModel implements BakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction direction, RandomSource random) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction direction, Random random) {
         return baseModel.getQuads(state, direction, random);
     }
 
@@ -84,13 +84,13 @@ public class DragonTridentBakedModel implements BakedModel {
     }
 
     @Override
-    public BakedModel applyTransform(ItemTransforms.TransformType displayContext, PoseStack poseStack, boolean leftHand) {
+    public BakedModel handlePerspective(ItemTransforms.TransformType displayContext, PoseStack poseStack) {
         if (isHandContext(displayContext)) {
             BakedModel model = throwing ? throwingModel : inHandModel;
-            return model.applyTransform(displayContext, poseStack, leftHand);
+            return model.handlePerspective(displayContext, poseStack);
         }
 
-        return baseModel.applyTransform(displayContext, poseStack, leftHand);
+        return baseModel.handlePerspective(displayContext, poseStack);
     }
 
     private static boolean isHandContext(ItemTransforms.TransformType displayContext) {

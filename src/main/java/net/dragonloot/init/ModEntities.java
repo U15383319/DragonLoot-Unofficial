@@ -10,7 +10,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public final class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
-            DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, DragonLoot.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.ENTITIES, DragonLoot.MOD_ID);
 
     public static final RegistryObject<EntityType<DragonTridentEntity>> DRAGON_TRIDENT = ENTITY_TYPES.register("dragon_trident",
             () -> EntityType.Builder.<DragonTridentEntity>of(DragonTridentEntity::new, MobCategory.MISC)

@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Difficulty;
@@ -34,7 +35,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.levelgen.presets.WorldPresets;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -78,16 +79,16 @@ public class DragonLootClientSmokeTest {
         Minecraft client = Minecraft.getInstance();
         ticks++;
         if (stage == 0 && client.screen instanceof TitleScreen && client.getOverlay() == null && ticks > 60) {
-            client.options.renderDistance().set(2);
-            client.options.guiScale().set(2);
+            client.options.renderDistance = 2;
+            client.options.guiScale = 2;
             client.options.pauseOnLostFocus = false;
             var registry = RegistryAccess.builtinCopy();
             stage = 1;
             ticks = 0;
-            client.createWorldOpenFlows().createFreshLevel("dragonloot-port-check-" + System.currentTimeMillis(),
+            client.createLevel("dragonloot-port-check-" + System.currentTimeMillis(),
                     new LevelSettings("DragonLoot port verification", GameType.CREATIVE, false, Difficulty.PEACEFUL,
                             false, new GameRules(), DataPackConfig.DEFAULT),
-                    registry, WorldPresets.createNormalWorldFromPreset(registry, 12345L, false, false));
+                    registry, WorldGenSettings.makeDefault(registry).withSeed(false, java.util.OptionalLong.of(12345L)));
         } else if (stage == 1 && client.level != null && client.player != null && ticks > 100) {
             verifyModels(client);
             client.getSingleplayerServer().execute(() -> {
@@ -119,9 +120,9 @@ public class DragonLootClientSmokeTest {
                 var player = client.getSingleplayerServer().getPlayerList().getPlayer(client.player.getUUID());
                 var pos = player.blockPosition().east();
                 player.level.setBlock(pos, Blocks.SMITHING_TABLE.defaultBlockState(), 3);
-                NetworkHooks.openScreen(player, new SimpleMenuProvider((id, inventory, user) ->
+                NetworkHooks.openGui(player, new SimpleMenuProvider((id, inventory, user) ->
                         new DragonSmithingMenu(id, inventory, ContainerLevelAccess.create(player.level, pos)),
-                        Component.translatable("container.upgrade")));
+                        new TranslatableComponent("container.upgrade")));
                 player.containerMenu.getSlot(0).set(new ItemStack(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()));
                 player.containerMenu.getSlot(1).set(new ItemStack(Items.NETHERITE_SWORD));
                 player.containerMenu.getSlot(2).set(new ItemStack(ModItems.DRAGON_SCALE.get()));
@@ -180,14 +181,14 @@ public class DragonLootClientSmokeTest {
         BakedModel model = client.getItemRenderer().getModel(trident, client.level, client.player, 0);
         for (var context : new ItemTransforms.TransformType[]{ItemTransforms.TransformType.GUI,
                 ItemTransforms.TransformType.GROUND, ItemTransforms.TransformType.FIXED}) {
-            if (model.applyTransform(context, new PoseStack(), false).isCustomRenderer()) {
+            if (model.handlePerspective(context, new PoseStack()).isCustomRenderer()) {
                 throw new IllegalStateException("Trident inventory model must stay 2D: " + context);
             }
         }
         for (var context : new ItemTransforms.TransformType[]{ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND,
                 ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND, ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND,
                 ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND}) {
-            if (!model.applyTransform(context, new PoseStack(), false).isCustomRenderer()) {
+            if (!model.handlePerspective(context, new PoseStack()).isCustomRenderer()) {
                 throw new IllegalStateException("Trident held model must use its 3D renderer: " + context);
             }
         }
