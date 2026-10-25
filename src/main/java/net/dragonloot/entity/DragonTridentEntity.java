@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
@@ -61,7 +62,7 @@ public class DragonTridentEntity extends AbstractArrow {
         int loyalty = this.entityData.get(ID_LOYALTY);
         if ((this.dealtDamage || this.isNoPhysics()) && owner != null && loyalty > 0) {
             if (!isAcceptableReturnOwner()) {
-                if (!this.level().isClientSide && this.pickup == Pickup.ALLOWED) {
+                if (!this.level.isClientSide && this.pickup == Pickup.ALLOWED) {
                     this.spawnAtLocation(this.getPickupItem(), 0.1F);
                 }
                 this.discard();
@@ -109,7 +110,7 @@ public class DragonTridentEntity extends AbstractArrow {
         }
 
         Entity owner = this.getOwner();
-        var damageSource = this.damageSources().trident(this, owner == null ? this : owner);
+        var damageSource = DamageSource.trident(this, owner == null ? this : owner);
         this.dealtDamage = true;
         SoundEvent sound = SoundEvents.TRIDENT_HIT;
         if (target.hurt(damageSource, damage)) {
@@ -127,7 +128,7 @@ public class DragonTridentEntity extends AbstractArrow {
 
         this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
         float volume = 1.0F;
-        if (this.level() instanceof ServerLevel serverLevel && serverLevel.isThundering() && EnchantmentHelper.hasChanneling(this.tridentStack)) {
+        if (this.level instanceof ServerLevel serverLevel && serverLevel.isThundering() && EnchantmentHelper.hasChanneling(this.tridentStack)) {
             var pos = target.blockPosition();
             if (serverLevel.canSeeSky(pos)) {
                 LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(serverLevel);

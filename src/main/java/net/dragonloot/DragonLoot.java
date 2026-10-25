@@ -2,9 +2,17 @@ package net.dragonloot;
 
 import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModBlocks;
-import net.dragonloot.init.ModCreativeTabs;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
+import net.dragonloot.init.ModMenus;
+import net.dragonloot.init.ModRecipes;
+import net.dragonloot.menu.DragonSmithingMenu;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.level.block.Blocks;
 import net.dragonloot.item.DragonCrossbowItem;
 import net.dragonloot.item.DragonShieldItem;
 import net.minecraft.util.Mth;
@@ -25,6 +33,8 @@ import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -49,7 +59,9 @@ public class DragonLoot {
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModEntities.ENTITY_TYPES.register(modBus);
-        ModCreativeTabs.CREATIVE_MODE_TABS.register(modBus);
+        ModMenus.MENUS.register(modBus);
+        ModRecipes.SERIALIZERS.register(modBus);
+        ModRecipes.TYPES.register(modBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DragonLootConfig.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
@@ -60,12 +72,26 @@ public class DragonLoot {
     }
 
     @SubscribeEvent
+    public void onSmithingTableUse(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getEntity().isShiftKeyDown() || !event.getLevel().getBlockState(event.getPos()).is(Blocks.SMITHING_TABLE)) {
+            return;
+        }
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide));
+        if (event.getEntity() instanceof ServerPlayer player) {
+            NetworkHooks.openScreen(player, new SimpleMenuProvider((id, inventory, user) ->
+                    new DragonSmithingMenu(id, inventory, ContainerLevelAccess.create(event.getLevel(), event.getPos())),
+                    Component.translatable("container.upgrade")));
+        }
+    }
+
+    @SubscribeEvent
     public void onDragonDrops(LivingDropsEvent event) {
-        if (!(event.getEntity() instanceof EnderDragon dragon) || dragon.level().isClientSide()) {
+        if (!(event.getEntity() instanceof EnderDragon dragon) || dragon.level.isClientSide()) {
             return;
         }
 
-        int nearbyPlayers = dragon.level().getEntitiesOfClass(
+        int nearbyPlayers = dragon.level.getEntitiesOfClass(
                 net.minecraft.world.entity.player.Player.class,
                 new AABB(dragon.blockPosition()).inflate(128.0D),
                 player -> !player.isSpectator()).size();
@@ -78,7 +104,7 @@ public class DragonLoot {
         }
 
         for (int i = 0; i < total; i++) {
-            event.getDrops().add(new ItemEntity(dragon.level(), dragon.getX(), dragon.getY(), dragon.getZ(),
+            event.getDrops().add(new ItemEntity(dragon.level, dragon.getX(), dragon.getY(), dragon.getZ(),
                     new ItemStack(ModItems.DRAGON_SCALE.get())));
         }
     }
@@ -105,7 +131,7 @@ public class DragonLoot {
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || event.player.level().isClientSide) {
+        if (event.phase != TickEvent.Phase.END || event.player.level.isClientSide) {
             return;
         }
 

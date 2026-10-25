@@ -1,7 +1,6 @@
 package net.dragonloot.item;
 
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -36,6 +35,6 @@ public class DragonCrossbowItem extends CrossbowItem {
 
     @Override
     public boolean canBeHurtBy(DamageSource source) {
-        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(source);
+        return !source.isExplosion() && super.canBeHurtBy(source);
     }
 }

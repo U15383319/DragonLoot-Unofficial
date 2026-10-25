@@ -5,6 +5,10 @@ import net.dragonloot.client.render.DragonTridentBakedModel;
 import net.dragonloot.client.render.DragonTridentRenderer;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
+import net.dragonloot.init.ModMenus;
+import net.dragonloot.client.screen.DragonSmithingScreen;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -14,6 +18,7 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -33,6 +38,7 @@ public final class DragonLootClient {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            MenuScreens.register(ModMenus.DRAGON_SMITHING.get(), DragonSmithingScreen::new);
             ItemProperties.register(ModItems.DRAGON_BOW.get(), new ResourceLocation("pull"),
                     (stack, level, entity, seed) -> entity == null || entity.getUseItem() != stack ? 0.0F
                             : (float) (stack.getUseDuration() - entity.getUseItemRemainingTicks()) / 20.0F);
@@ -66,12 +72,19 @@ public final class DragonLootClient {
     }
 
     @SubscribeEvent
-    public static void modifyBakedModels(ModelEvent.ModifyBakingResult event) {
+    public static void modifyBakedModels(ModelEvent.BakingCompleted event) {
         BakedModel baseModel = event.getModels().get(DRAGON_TRIDENT_MODEL);
         BakedModel inHandModel = event.getModels().get(DRAGON_TRIDENT_IN_HAND_MODEL);
         BakedModel throwingModel = event.getModels().get(DRAGON_TRIDENT_THROWING_MODEL);
         if (baseModel != null && inHandModel != null && throwingModel != null) {
             event.getModels().put(DRAGON_TRIDENT_MODEL, new DragonTridentBakedModel(baseModel, inHandModel, throwingModel));
+        }
+    }
+
+    @SubscribeEvent
+    public static void registerShieldTexture(TextureStitchEvent.Pre event) {
+        if (event.getAtlas().location().equals(Sheets.SHIELD_SHEET)) {
+            event.addSprite(DragonLoot.id("entity/dragon_shield_base_nopattern"));
         }
     }
 }

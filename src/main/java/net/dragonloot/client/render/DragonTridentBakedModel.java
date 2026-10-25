@@ -10,7 +10,6 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -85,7 +84,7 @@ public class DragonTridentBakedModel implements BakedModel {
     }
 
     @Override
-    public BakedModel applyTransform(ItemDisplayContext displayContext, PoseStack poseStack, boolean leftHand) {
+    public BakedModel applyTransform(ItemTransforms.TransformType displayContext, PoseStack poseStack, boolean leftHand) {
         if (isHandContext(displayContext)) {
             BakedModel model = throwing ? throwingModel : inHandModel;
             return model.applyTransform(displayContext, poseStack, leftHand);
@@ -94,10 +93,10 @@ public class DragonTridentBakedModel implements BakedModel {
         return baseModel.applyTransform(displayContext, poseStack, leftHand);
     }
 
-    private static boolean isHandContext(ItemDisplayContext displayContext) {
-        return displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
-                || displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
-                || displayContext == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
-                || displayContext == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
+    private static boolean isHandContext(ItemTransforms.TransformType displayContext) {
+        return displayContext == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND
+                || displayContext == ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
+                || displayContext == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND
+                || displayContext == ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
     }
 }

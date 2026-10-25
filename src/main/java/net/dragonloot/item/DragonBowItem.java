@@ -1,7 +1,6 @@
 package net.dragonloot.item;
 
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.BowItem;
 
@@ -18,6 +17,6 @@ public class DragonBowItem extends BowItem {
 
     @Override
     public boolean canBeHurtBy(DamageSource source) {
-        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(source);
+        return !source.isExplosion() && super.canBeHurtBy(source);
     }
 }
