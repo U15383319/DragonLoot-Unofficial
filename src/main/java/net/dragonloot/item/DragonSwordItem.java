@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.dragonloot.config.DragonLootConfig;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -30,13 +29,13 @@ public class DragonSwordItem extends SwordItem {
 
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
         builder.putAll(super.getAttributeModifiers(slot, stack));
-        builder.put(ForgeMod.ENTITY_REACH.get(), new AttributeModifier(ENTITY_REACH_MODIFIER_UUID, "Dragon sword reach",
+        builder.put(ForgeMod.ATTACK_RANGE.get(), new AttributeModifier(ENTITY_REACH_MODIFIER_UUID, "Dragon sword reach",
                 DragonLootConfig.dragonSwordEntityReachBonus(), AttributeModifier.Operation.ADDITION));
         return builder.build();
     }
 
     @Override
     public boolean canBeHurtBy(DamageSource source) {
-        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(source);
+        return !source.isExplosion() && super.canBeHurtBy(source);
     }
 }

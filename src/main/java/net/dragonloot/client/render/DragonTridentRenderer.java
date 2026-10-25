@@ -2,7 +2,7 @@ package net.dragonloot.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import net.dragonloot.DragonLoot;
 import net.dragonloot.entity.DragonTridentEntity;
 import net.minecraft.client.model.TridentModel;
@@ -28,8 +28,8 @@ public class DragonTridentRenderer extends EntityRenderer<DragonTridentEntity> {
     @Override
     public void render(DragonTridentEntity entity, float yaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90.0F));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot()) + 90.0F));
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90.0F));
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot()) + 90.0F));
         VertexConsumer consumer = ItemRenderer.getFoilBufferDirect(buffer, this.model.renderType(getTextureLocation(entity)), false, entity.isFoil());
         this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();

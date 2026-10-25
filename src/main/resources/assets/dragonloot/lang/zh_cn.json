@@ -3,6 +3,8 @@
   "item.dragonloot.dragon_scale": "龙鳞",
   "item.dragonloot.dragon_upgrade_smithing_template": "龙升级锻造模板",
   "upgrade.dragonloot.dragon_upgrade": "龙升级",
+  "item.dragonloot.smithing_template.applies_to": "适用于：",
+  "item.dragonloot.smithing_template.ingredients": "原材料：",
   "item.dragonloot.smithing_template.dragon_upgrade.applies_to": "下界合金装备与羽翼装备",
   "item.dragonloot.smithing_template.dragon_upgrade.ingredients": "龙鳞",
   "item.dragonloot.smithing_template.dragon_upgrade.base_slot_description": "放入下界合金装备、弓、弩、三叉戟、马铠或羽翼胸甲",

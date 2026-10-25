@@ -1,7 +1,6 @@
 package net.dragonloot.item;
 
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.Tier;
 
@@ -12,6 +11,6 @@ public class DragonShovelItem extends ShovelItem {
 
     @Override
     public boolean canBeHurtBy(DamageSource source) {
-        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(source);
+        return !source.isExplosion() && super.canBeHurtBy(source);
     }
 }

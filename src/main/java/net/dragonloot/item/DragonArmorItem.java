@@ -3,7 +3,6 @@ package net.dragonloot.item;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import java.util.UUID;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -26,17 +25,17 @@ public class DragonArmorItem extends ArmorItem {
     private final Multimap<Attribute, AttributeModifier> dragonModifiers;
     private final boolean winged;
 
-    public DragonArmorItem(ArmorMaterial material, Type type, Properties properties) {
-        this(material, type, properties, false);
+    public DragonArmorItem(ArmorMaterial material, EquipmentSlot slot, Properties properties) {
+        this(material, slot, properties, false);
     }
 
-    public DragonArmorItem(ArmorMaterial material, Type type, Properties properties, boolean winged) {
-        super(material, type, properties);
+    public DragonArmorItem(ArmorMaterial material, EquipmentSlot slot, Properties properties, boolean winged) {
+        super(material, slot, properties);
         this.winged = winged;
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        UUID uuid = ARMOR_UUIDS[type.getSlot().getIndex()];
+        UUID uuid = ARMOR_UUIDS[slot.getIndex()];
         builder.put(Attributes.ARMOR, new AttributeModifier(uuid, "Armor modifier",
-                material.getDefenseForType(type), AttributeModifier.Operation.ADDITION));
+                material.getDefenseForSlot(slot), AttributeModifier.Operation.ADDITION));
         builder.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(uuid, "Armor toughness",
                 material.getToughness(), AttributeModifier.Operation.ADDITION));
         builder.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(uuid,
@@ -46,7 +45,7 @@ public class DragonArmorItem extends ArmorItem {
 
     @Override
     public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
-        return slot == getEquipmentSlot() ? dragonModifiers : super.getDefaultAttributeModifiers(slot);
+        return slot == getSlot() ? dragonModifiers : super.getDefaultAttributeModifiers(slot);
     }
 
     @Override
@@ -67,6 +66,6 @@ public class DragonArmorItem extends ArmorItem {
 
     @Override
     public boolean canBeHurtBy(DamageSource source) {
-        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(source);
+        return !source.isExplosion() && super.canBeHurtBy(source);
     }
 }

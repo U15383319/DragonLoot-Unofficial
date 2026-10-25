@@ -6,7 +6,6 @@ import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.client.render.DragonTridentItemRenderer;
 import net.dragonloot.entity.DragonTridentEntity;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -100,7 +99,7 @@ public class DragonTridentItem extends TridentItem {
             float strength = 3.0F * ((1.0F + riptide) / 4.0F);
             player.push(x * strength / length, y * strength / length, z * strength / length);
             player.startAutoSpinAttack(20);
-            if (player.onGround()) {
+            if (player.isOnGround()) {
                 player.move(MoverType.SELF, new Vec3(0.0D, 1.1999999D, 0.0D));
             }
             level.playSound(null, player, riptide >= 3 ? SoundEvents.TRIDENT_RIPTIDE_3 : riptide == 2 ? SoundEvents.TRIDENT_RIPTIDE_2 : SoundEvents.TRIDENT_RIPTIDE_1,
@@ -128,6 +127,6 @@ public class DragonTridentItem extends TridentItem {
 
     @Override
     public boolean canBeHurtBy(DamageSource source) {
-        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(source);
+        return !source.isExplosion() && super.canBeHurtBy(source);
     }
 }

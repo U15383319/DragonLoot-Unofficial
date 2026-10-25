@@ -4,7 +4,7 @@ import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModItems;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -14,17 +14,18 @@ public enum DragonArmorMaterial implements ArmorMaterial {
     private static final int[] BASE_DURABILITY = new int[]{28, 32, 35, 26};
 
     @Override
-    public int getDurabilityForType(ArmorItem.Type type) {
-        return BASE_DURABILITY[type.getSlot().getIndex()] * DragonLootConfig.armorDurabilityMultiplier();
+    public int getDurabilityForSlot(EquipmentSlot slot) {
+        return BASE_DURABILITY[slot.getIndex()] * DragonLootConfig.armorDurabilityMultiplier();
     }
 
     @Override
-    public int getDefenseForType(ArmorItem.Type type) {
-        return switch (type) {
-            case HELMET -> DragonLootConfig.helmetProtection();
-            case CHESTPLATE -> DragonLootConfig.chestProtection();
-            case LEGGINGS -> DragonLootConfig.leggingsProtection();
-            case BOOTS -> DragonLootConfig.bootsProtection();
+    public int getDefenseForSlot(EquipmentSlot slot) {
+        return switch (slot) {
+            case HEAD -> DragonLootConfig.helmetProtection();
+            case CHEST -> DragonLootConfig.chestProtection();
+            case LEGS -> DragonLootConfig.leggingsProtection();
+            case FEET -> DragonLootConfig.bootsProtection();
+            default -> 0;
         };
     }
 
