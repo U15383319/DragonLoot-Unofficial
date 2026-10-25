@@ -8,6 +8,7 @@ import net.dragonloot.init.ModMenus;
 import net.dragonloot.init.ModRecipes;
 import net.dragonloot.menu.DragonSmithingMenu;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -73,15 +74,15 @@ public class DragonLoot {
 
     @SubscribeEvent
     public void onSmithingTableUse(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getEntity().isShiftKeyDown() || !event.getLevel().getBlockState(event.getPos()).is(Blocks.SMITHING_TABLE)) {
+        if (event.getPlayer().isShiftKeyDown() || !event.getWorld().getBlockState(event.getPos()).is(Blocks.SMITHING_TABLE)) {
             return;
         }
         event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide));
-        if (event.getEntity() instanceof ServerPlayer player) {
-            NetworkHooks.openScreen(player, new SimpleMenuProvider((id, inventory, user) ->
-                    new DragonSmithingMenu(id, inventory, ContainerLevelAccess.create(event.getLevel(), event.getPos())),
-                    Component.translatable("container.upgrade")));
+        event.setCancellationResult(InteractionResult.sidedSuccess(event.getWorld().isClientSide));
+        if (event.getPlayer() instanceof ServerPlayer player) {
+            NetworkHooks.openGui(player, new SimpleMenuProvider((id, inventory, user) ->
+                    new DragonSmithingMenu(id, inventory, ContainerLevelAccess.create(event.getWorld(), event.getPos())),
+                    new TranslatableComponent("container.upgrade")));
         }
     }
 
@@ -124,7 +125,7 @@ public class DragonLoot {
 
     @SubscribeEvent
     public void onDragonAnvilRepair(AnvilRepairEvent event) {
-        if (event.getEntity().containerMenu instanceof net.dragonloot.menu.DragonAnvilMenu) {
+        if (event.getPlayer().containerMenu instanceof net.dragonloot.menu.DragonAnvilMenu) {
             event.setBreakChance(0.0F);
         }
     }

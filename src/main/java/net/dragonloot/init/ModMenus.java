@@ -9,7 +9,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public final class ModMenus {
     public static final DeferredRegister<MenuType<?>> MENUS =
-            DeferredRegister.create(ForgeRegistries.MENU_TYPES, DragonLoot.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.CONTAINERS, DragonLoot.MOD_ID);
     public static final RegistryObject<MenuType<DragonSmithingMenu>> DRAGON_SMITHING =
             MENUS.register("dragon_smithing", () -> new MenuType<>(DragonSmithingMenu::new));
 

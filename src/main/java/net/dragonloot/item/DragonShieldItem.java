@@ -4,7 +4,7 @@ import net.dragonloot.client.render.DragonShieldRenderer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ShieldItem;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.client.IItemRenderProperties;
 
 import java.util.function.Consumer;
 
@@ -16,12 +16,12 @@ public class DragonShieldItem extends ShieldItem {
     }
 
     @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
+    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
+        consumer.accept(new IItemRenderProperties() {
             private DragonShieldRenderer renderer;
 
             @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
                 if (renderer == null) {
                     renderer = new DragonShieldRenderer();
                 }

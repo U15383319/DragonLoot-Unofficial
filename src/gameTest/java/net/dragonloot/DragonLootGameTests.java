@@ -11,6 +11,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -41,7 +42,7 @@ public class DragonLootGameTests {
         check(helper, recipes.size() == 16, "All 16 dragon upgrade recipes must load");
         for (DragonSmithingRecipe recipe : recipes) {
             ItemStack base = recipe.getBase().getItems()[0].copy();
-            base.setHoverName(Component.literal("Port verification"));
+            base.setHoverName(new TextComponent("Port verification"));
             var input = new SimpleContainer(recipe.getTemplate().getItems()[0].copy(), base,
                     recipe.getAddition().getItems()[0].copy());
             check(helper, recipe.matches(input, helper.getLevel()), "Upgrade recipe must match: " + recipe.getId());

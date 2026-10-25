@@ -13,6 +13,7 @@ import net.dragonloot.DragonLoot;
 import net.dragonloot.init.ModItems;
 import net.dragonloot.recipe.DragonSmithingRecipe;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -37,8 +38,18 @@ public class DragonSmithingCategory implements IRecipeCategory<DragonSmithingRec
     }
 
     @Override
+    public ResourceLocation getUid() {
+        return TYPE.getUid();
+    }
+
+    @Override
+    public Class<? extends DragonSmithingRecipe> getRecipeClass() {
+        return DragonSmithingRecipe.class;
+    }
+
+    @Override
     public Component getTitle() {
-        return Component.translatable("upgrade.dragonloot.dragon_upgrade");
+        return new TranslatableComponent("upgrade.dragonloot.dragon_upgrade");
     }
 
     @Override

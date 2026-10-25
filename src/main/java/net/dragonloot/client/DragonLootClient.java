@@ -17,7 +17,9 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -66,18 +68,18 @@ public final class DragonLootClient {
     }
 
     @SubscribeEvent
-    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
-        event.register(DRAGON_TRIDENT_IN_HAND_MODEL);
-        event.register(DRAGON_TRIDENT_THROWING_MODEL);
+    public static void registerAdditionalModels(ModelRegistryEvent event) {
+        ForgeModelBakery.addSpecialModel(DRAGON_TRIDENT_IN_HAND_MODEL);
+        ForgeModelBakery.addSpecialModel(DRAGON_TRIDENT_THROWING_MODEL);
     }
 
     @SubscribeEvent
-    public static void modifyBakedModels(ModelEvent.BakingCompleted event) {
-        BakedModel baseModel = event.getModels().get(DRAGON_TRIDENT_MODEL);
-        BakedModel inHandModel = event.getModels().get(DRAGON_TRIDENT_IN_HAND_MODEL);
-        BakedModel throwingModel = event.getModels().get(DRAGON_TRIDENT_THROWING_MODEL);
+    public static void modifyBakedModels(ModelBakeEvent event) {
+        BakedModel baseModel = event.getModelRegistry().get(DRAGON_TRIDENT_MODEL);
+        BakedModel inHandModel = event.getModelRegistry().get(DRAGON_TRIDENT_IN_HAND_MODEL);
+        BakedModel throwingModel = event.getModelRegistry().get(DRAGON_TRIDENT_THROWING_MODEL);
         if (baseModel != null && inHandModel != null && throwingModel != null) {
-            event.getModels().put(DRAGON_TRIDENT_MODEL, new DragonTridentBakedModel(baseModel, inHandModel, throwingModel));
+            event.getModelRegistry().put(DRAGON_TRIDENT_MODEL, new DragonTridentBakedModel(baseModel, inHandModel, throwingModel));
         }
     }
 

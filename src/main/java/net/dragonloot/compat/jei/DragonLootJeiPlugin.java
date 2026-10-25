@@ -10,7 +10,6 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.constants.RecipeTypes;
 import net.dragonloot.DragonLoot;
 import net.dragonloot.client.screen.DragonSmithingScreen;
-import net.dragonloot.init.ModMenus;
 import net.dragonloot.init.ModRecipes;
 import net.dragonloot.menu.DragonSmithingMenu;
 import net.minecraft.client.Minecraft;
@@ -46,9 +45,9 @@ public class DragonLootJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        registration.addRecipeTransferHandler(DragonSmithingMenu.class, ModMenus.DRAGON_SMITHING.get(),
+        registration.addRecipeTransferHandler(DragonSmithingMenu.class,
                 DragonSmithingCategory.TYPE, 0, 3, 4, 36);
-        registration.addRecipeTransferHandler(DragonSmithingMenu.class, ModMenus.DRAGON_SMITHING.get(),
+        registration.addRecipeTransferHandler(DragonSmithingMenu.class,
                 RecipeTypes.SMITHING, 1, 2, 4, 36);
     }
 
