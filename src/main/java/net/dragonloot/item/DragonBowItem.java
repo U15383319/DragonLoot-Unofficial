@@ -1,8 +1,8 @@
 package net.dragonloot.item;
 
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.item.BowItem;
+import net.minecraft.util.DamageSource;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.item.BowItem;
 
 public class DragonBowItem extends BowItem {
     public DragonBowItem(Properties properties) {
@@ -10,7 +10,7 @@ public class DragonBowItem extends BowItem {
     }
 
     @Override
-    public AbstractArrow customArrow(AbstractArrow arrow) {
+    public AbstractArrowEntity customArrow(AbstractArrowEntity arrow) {
         arrow.setBaseDamage(arrow.getBaseDamage() * 1.25D + 1.0D);
         return arrow;
     }

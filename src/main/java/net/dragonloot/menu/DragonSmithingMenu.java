@@ -4,45 +4,45 @@ import net.dragonloot.init.ModItems;
 import net.dragonloot.init.ModMenus;
 import net.dragonloot.init.ModRecipes;
 import net.dragonloot.recipe.DragonSmithingRecipe;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.ResultContainer;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.inventory.CraftResultInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.world.World;
+import net.minecraft.block.Blocks;
 
-public class DragonSmithingMenu extends AbstractContainerMenu {
-    private final ContainerLevelAccess access;
-    private final Level level;
-    private final ResultContainer result = new ResultContainer();
-    private final Container input = new SimpleContainer(3) {
+public class DragonSmithingMenu extends Container {
+    private final IWorldPosCallable access;
+    private final World level;
+    private final CraftResultInventory result = new CraftResultInventory();
+    private final IInventory input = new Inventory(3) {
         @Override
         public void setChanged() {
             super.setChanged();
             DragonSmithingMenu.this.slotsChanged(this);
         }
     };
-    private Recipe<Container> selectedRecipe;
+    private IRecipe<IInventory> selectedRecipe;
 
-    public DragonSmithingMenu(int id, Inventory inventory) {
-        this(id, inventory, ContainerLevelAccess.NULL);
+    public DragonSmithingMenu(int id, PlayerInventory inventory) {
+        this(id, inventory, IWorldPosCallable.NULL);
     }
 
-    public DragonSmithingMenu(int id, Inventory inventory, ContainerLevelAccess access) {
+    public DragonSmithingMenu(int id, PlayerInventory inventory, IWorldPosCallable access) {
         super(ModMenus.DRAGON_SMITHING.get(), id);
         this.access = access;
         this.level = inventory.player.level;
         addSlot(new Slot(input, 0, 26, 47) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get());
+                return stack.getItem() == ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get();
             }
         });
         addSlot(new Slot(input, 1, 52, 47));
@@ -54,12 +54,12 @@ public class DragonSmithingMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public boolean mayPickup(Player player) {
+            public boolean mayPickup(PlayerEntity player) {
                 return hasItem();
             }
 
             @Override
-            public void onTake(Player player, ItemStack stack) {
+            public ItemStack onTake(PlayerEntity player, ItemStack stack) {
                 boolean consumesTemplate = selectedRecipe instanceof DragonSmithingRecipe;
                 stack.onCraftedBy(level, player, stack.getCount());
                 result.awardUsedRecipes(player);
@@ -69,7 +69,7 @@ public class DragonSmithingMenu extends AbstractContainerMenu {
                 input.removeItem(1, 1);
                 input.removeItem(2, 1);
                 access.execute((world, pos) -> world.levelEvent(1044, pos, 0));
-                super.onTake(player, stack);
+                return super.onTake(player, stack);
             }
         });
         for (int row = 0; row < 3; row++) {
@@ -83,21 +83,21 @@ public class DragonSmithingMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public void slotsChanged(Container container) {
+    public void slotsChanged(IInventory container) {
         if (level.isClientSide) {
             return;
         }
         selectedRecipe = null;
         ItemStack output = ItemStack.EMPTY;
         if (!input.getItem(0).isEmpty()) {
-            var recipe = level.getRecipeManager().getRecipeFor(ModRecipes.DRAGON_SMITHING.get(), input, level);
+            var recipe = level.getRecipeManager().getRecipeFor(ModRecipes.DRAGON_SMITHING, input, level);
             if (recipe.isPresent()) {
                 selectedRecipe = recipe.get();
                 output = selectedRecipe.assemble(input);
             }
         } else {
-            Container vanillaInput = new SimpleContainer(input.getItem(1), input.getItem(2));
-            var recipe = level.getRecipeManager().getRecipeFor(RecipeType.SMITHING, vanillaInput, level);
+            IInventory vanillaInput = new Inventory(input.getItem(1), input.getItem(2));
+            var recipe = level.getRecipeManager().getRecipeFor(IRecipeType.SMITHING, vanillaInput, level);
             if (recipe.isPresent()) {
                 selectedRecipe = recipe.get();
                 output = selectedRecipe.assemble(vanillaInput);
@@ -109,7 +109,7 @@ public class DragonSmithingMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public ItemStack quickMoveStack(PlayerEntity player, int index) {
         Slot slot = slots.get(index);
         if (!slot.hasItem()) {
             return ItemStack.EMPTY;
@@ -125,7 +125,7 @@ public class DragonSmithingMenu extends AbstractContainerMenu {
             if (!moveItemStackTo(stack, 4, 40, false)) {
                 return ItemStack.EMPTY;
             }
-        } else if (stack.is(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get())) {
+        } else if (stack.getItem() == ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()) {
             if (!moveItemStackTo(stack, 0, 1, false)) {
                 return ItemStack.EMPTY;
             }
@@ -151,9 +151,9 @@ public class DragonSmithingMenu extends AbstractContainerMenu {
     }
 
     private boolean isAddition(ItemStack stack) {
-        return level.getRecipeManager().getAllRecipesFor(ModRecipes.DRAGON_SMITHING.get()).stream()
+        return level.getRecipeManager().getAllRecipesFor(ModRecipes.DRAGON_SMITHING).stream()
                 .anyMatch(recipe -> recipe.getAddition().test(stack))
-                || level.getRecipeManager().getAllRecipesFor(RecipeType.SMITHING).stream()
+                || level.getRecipeManager().getAllRecipesFor(IRecipeType.SMITHING).stream()
                 .anyMatch(recipe -> recipe.isAdditionIngredient(stack));
     }
 
@@ -163,13 +163,13 @@ public class DragonSmithingMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(PlayerEntity player) {
         return stillValid(access, player, Blocks.SMITHING_TABLE);
     }
 
     @Override
-    public void removed(Player player) {
+    public void removed(PlayerEntity player) {
         super.removed(player);
-        access.execute((world, pos) -> clearContainer(player, input));
+        access.execute((world, pos) -> clearContainer(player, world, input));
     }
 }

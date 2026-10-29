@@ -1,11 +1,11 @@
 package net.dragonloot.item;
 
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.util.DamageSource;
+import net.minecraft.item.ShovelItem;
+import net.minecraft.item.IItemTier;
 
 public class DragonShovelItem extends ShovelItem {
-    public DragonShovelItem(Tier tier, float attackDamage, float attackSpeed, Properties properties) {
+    public DragonShovelItem(IItemTier tier, float attackDamage, float attackSpeed, Properties properties) {
         super(tier, attackDamage, attackSpeed, properties);
     }
 

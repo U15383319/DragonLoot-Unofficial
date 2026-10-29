@@ -1,25 +1,21 @@
 package net.dragonloot.compat.jei;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.dragonloot.DragonLoot;
 import net.dragonloot.init.ModItems;
 import net.dragonloot.recipe.DragonSmithingRecipe;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 
 public class DragonSmithingCategory implements IRecipeCategory<DragonSmithingRecipe> {
-    public static final RecipeType<DragonSmithingRecipe> TYPE =
-            new RecipeType<>(DragonLoot.id("smithing_transform"), DragonSmithingRecipe.class);
+    public static final ResourceLocation TYPE = DragonLoot.id("smithing_transform");
     private final IDrawable background;
     private final IDrawable icon;
     private final IDrawable slot;
@@ -27,19 +23,14 @@ public class DragonSmithingCategory implements IRecipeCategory<DragonSmithingRec
 
     public DragonSmithingCategory(IGuiHelper gui) {
         this.background = gui.createBlankDrawable(130, 24);
-        this.icon = gui.createDrawableItemStack(new ItemStack(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()));
+        this.icon = gui.createDrawableIngredient(new ItemStack(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()));
         this.slot = gui.getSlotDrawable();
         this.arrow = gui.createDrawable(new ResourceLocation("minecraft", "textures/gui/container/smithing.png"), 102, 48, 22, 15);
     }
 
     @Override
-    public RecipeType<DragonSmithingRecipe> getRecipeType() {
-        return TYPE;
-    }
-
-    @Override
     public ResourceLocation getUid() {
-        return TYPE.getUid();
+        return TYPE;
     }
 
     @Override
@@ -48,8 +39,8 @@ public class DragonSmithingCategory implements IRecipeCategory<DragonSmithingRec
     }
 
     @Override
-    public Component getTitle() {
-        return new TranslatableComponent("upgrade.dragonloot.dragon_upgrade");
+    public String getTitle() {
+        return new TranslationTextComponent("upgrade.dragonloot.dragon_upgrade").getString();
     }
 
     @Override
@@ -63,15 +54,26 @@ public class DragonSmithingCategory implements IRecipeCategory<DragonSmithingRec
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, DragonSmithingRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 1, 4).setBackground(slot, -1, -1).addIngredients(recipe.getTemplate());
-        builder.addSlot(RecipeIngredientRole.INPUT, 27, 4).setBackground(slot, -1, -1).addIngredients(recipe.getBase());
-        builder.addSlot(RecipeIngredientRole.INPUT, 53, 4).setBackground(slot, -1, -1).addIngredients(recipe.getAddition());
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 111, 4).setBackground(slot, -1, -1).addItemStack(recipe.getResultItem());
+    public void setIngredients(DragonSmithingRecipe recipe, IIngredients ingredients) {
+        ingredients.setInputIngredients(java.util.Arrays.asList(recipe.getTemplate(), recipe.getBase(), recipe.getAddition()));
+        ingredients.setOutput(VanillaTypes.ITEM, recipe.getResultItem());
     }
 
     @Override
-    public void draw(DragonSmithingRecipe recipe, IRecipeSlotsView slots, PoseStack poseStack, double mouseX, double mouseY) {
+    public void setRecipe(IRecipeLayout layout, DragonSmithingRecipe recipe, IIngredients ingredients) {
+        var stacks = layout.getItemStacks();
+        stacks.init(0, true, 0, 3);
+        stacks.init(1, true, 26, 3);
+        stacks.init(2, true, 52, 3);
+        stacks.init(3, false, 110, 3);
+        stacks.set(ingredients);
+    }
+
+    @Override
+    public void draw(DragonSmithingRecipe recipe, MatrixStack poseStack, double mouseX, double mouseY) {
+        for (int x : new int[]{0, 26, 52, 110}) {
+            slot.draw(poseStack, x, 3);
+        }
         arrow.draw(poseStack, 79, 4);
     }
 }

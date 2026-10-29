@@ -3,46 +3,50 @@ package net.dragonloot.entity;
 import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.DamageSource;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.effect.LightningBoltEntity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.world.World;
+import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
+import javax.annotation.Nullable;
 
-public class DragonTridentEntity extends AbstractArrow {
-    private static final EntityDataAccessor<Byte> ID_LOYALTY = SynchedEntityData.defineId(DragonTridentEntity.class, EntityDataSerializers.BYTE);
-    private static final EntityDataAccessor<Boolean> ID_FOIL = SynchedEntityData.defineId(DragonTridentEntity.class, EntityDataSerializers.BOOLEAN);
+public class DragonTridentEntity extends AbstractArrowEntity {
+    private static final DataParameter<Byte> ID_LOYALTY = EntityDataManager.defineId(DragonTridentEntity.class, DataSerializers.BYTE);
+    private static final DataParameter<Boolean> ID_FOIL = EntityDataManager.defineId(DragonTridentEntity.class, DataSerializers.BOOLEAN);
 
     private ItemStack tridentStack = new ItemStack(ModItems.DRAGON_TRIDENT.get());
     private boolean dealtDamage;
     public int clientSideReturnTridentTickCount;
 
-    public DragonTridentEntity(EntityType<? extends DragonTridentEntity> type, Level level) {
+    public DragonTridentEntity(EntityType<? extends DragonTridentEntity> type, World level) {
         super(type, level);
     }
 
-    public DragonTridentEntity(Level level, LivingEntity owner, ItemStack stack) {
+    public DragonTridentEntity(World level, LivingEntity owner, ItemStack stack) {
         super(ModEntities.DRAGON_TRIDENT.get(), owner, level);
         this.tridentStack = stack.copy();
         this.entityData.set(ID_LOYALTY, (byte) EnchantmentHelper.getLoyalty(stack));
         this.entityData.set(ID_FOIL, stack.hasFoil());
+    }
+
+    @Override
+    public net.minecraft.network.IPacket<?> getAddEntityPacket() {
+        return net.minecraftforge.fml.network.NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
@@ -62,13 +66,13 @@ public class DragonTridentEntity extends AbstractArrow {
         int loyalty = this.entityData.get(ID_LOYALTY);
         if ((this.dealtDamage || this.isNoPhysics()) && owner != null && loyalty > 0) {
             if (!isAcceptableReturnOwner()) {
-                if (!this.level.isClientSide && this.pickup == Pickup.ALLOWED) {
+                if (!this.level.isClientSide && this.pickup == PickupStatus.ALLOWED) {
                     this.spawnAtLocation(this.getPickupItem(), 0.1F);
                 }
-                this.discard();
+                this.remove();
             } else {
                 this.setNoPhysics(true);
-                Vec3 returnVector = owner.getEyePosition().subtract(this.position());
+                Vector3d returnVector = owner.getEyePosition(1.0F).subtract(this.position());
                 this.setPosRaw(this.getX(), this.getY() + returnVector.y * 0.015D * loyalty, this.getZ());
                 this.setDeltaMovement(this.getDeltaMovement().scale(0.95D).add(returnVector.normalize().scale(0.05D * loyalty)));
                 if (this.clientSideReturnTridentTickCount == 0) {
@@ -83,7 +87,7 @@ public class DragonTridentEntity extends AbstractArrow {
 
     private boolean isAcceptableReturnOwner() {
         Entity owner = this.getOwner();
-        return owner != null && owner.isAlive() && (!(owner instanceof ServerPlayer player) || !player.isSpectator());
+        return owner != null && owner.isAlive() && (!(owner instanceof ServerPlayerEntity) || !owner.isSpectator());
     }
 
     public boolean isFoil() {
@@ -97,15 +101,16 @@ public class DragonTridentEntity extends AbstractArrow {
 
     @Override
     @Nullable
-    protected EntityHitResult findHitEntity(Vec3 startVec, Vec3 endVec) {
+    protected EntityRayTraceResult findHitEntity(Vector3d startVec, Vector3d endVec) {
         return this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
     }
 
     @Override
-    protected void onHitEntity(EntityHitResult result) {
+    protected void onHitEntity(EntityRayTraceResult result) {
         Entity target = result.getEntity();
         float damage = (float) (8.0D + DragonLootConfig.itemBaseDamage() / 5.0D);
-        if (target instanceof LivingEntity livingTarget) {
+        if (target instanceof LivingEntity) {
+            LivingEntity livingTarget = (LivingEntity) target;
             damage += EnchantmentHelper.getDamageBonus(this.tridentStack, livingTarget.getMobType());
         }
 
@@ -117,8 +122,10 @@ public class DragonTridentEntity extends AbstractArrow {
             if (target.getType() == EntityType.ENDERMAN) {
                 return;
             }
-            if (target instanceof LivingEntity livingTarget) {
-                if (owner instanceof LivingEntity livingOwner) {
+            if (target instanceof LivingEntity) {
+                LivingEntity livingTarget = (LivingEntity) target;
+                if (owner instanceof LivingEntity) {
+                    LivingEntity livingOwner = (LivingEntity) owner;
                     EnchantmentHelper.doPostHurtEffects(livingTarget, owner);
                     EnchantmentHelper.doPostDamageEffects(livingOwner, livingTarget);
                 }
@@ -128,13 +135,14 @@ public class DragonTridentEntity extends AbstractArrow {
 
         this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
         float volume = 1.0F;
-        if (this.level instanceof ServerLevel serverLevel && serverLevel.isThundering() && EnchantmentHelper.hasChanneling(this.tridentStack)) {
+        if (this.level instanceof ServerWorld && this.level.isThundering() && EnchantmentHelper.hasChanneling(this.tridentStack)) {
+            ServerWorld serverLevel = (ServerWorld) this.level;
             var pos = target.blockPosition();
             if (serverLevel.canSeeSky(pos)) {
-                LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(serverLevel);
+                LightningBoltEntity lightning = EntityType.LIGHTNING_BOLT.create(serverLevel);
                 if (lightning != null) {
-                    lightning.moveTo(Vec3.atBottomCenterOf(pos));
-                    lightning.setCause(owner instanceof ServerPlayer player ? player : null);
+                    lightning.moveTo(Vector3d.atBottomCenterOf(pos));
+                    lightning.setCause(owner instanceof ServerPlayerEntity ? (ServerPlayerEntity) owner : null);
                     serverLevel.addFreshEntity(lightning);
                     sound = SoundEvents.TRIDENT_THUNDER;
                     volume = 5.0F;
@@ -150,7 +158,7 @@ public class DragonTridentEntity extends AbstractArrow {
     }
 
     @Override
-    public void playerTouch(Player player) {
+    public void playerTouch(PlayerEntity player) {
         Entity owner = this.getOwner();
         if (owner == null || owner.getUUID().equals(player.getUUID())) {
             super.playerTouch(player);
@@ -158,7 +166,7 @@ public class DragonTridentEntity extends AbstractArrow {
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
+    public void readAdditionalSaveData(CompoundNBT tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("Dragon_Trident", 10)) {
             this.tridentStack = ItemStack.of(tag.getCompound("Dragon_Trident"));
@@ -168,15 +176,15 @@ public class DragonTridentEntity extends AbstractArrow {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
+    public void addAdditionalSaveData(CompoundNBT tag) {
         super.addAdditionalSaveData(tag);
-        tag.put("Dragon_Trident", this.tridentStack.save(new CompoundTag()));
+        tag.put("Dragon_Trident", this.tridentStack.save(new CompoundNBT()));
         tag.putBoolean("DealtDamage", this.dealtDamage);
     }
 
     @Override
     protected void tickDespawn() {
-        if (this.pickup != Pickup.ALLOWED || this.entityData.get(ID_LOYALTY) <= 0) {
+        if (this.pickup != PickupStatus.ALLOWED || this.entityData.get(ID_LOYALTY) <= 0) {
             super.tickDespawn();
         }
     }

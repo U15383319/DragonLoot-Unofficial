@@ -12,8 +12,8 @@ base {
     archivesName = mod_id
 }
 
-// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+// Compile and launch the 1.16.5 development environment with JDK 11.
+java.toolchain.languageVersion = JavaLanguageVersion.of(11)
 
 sourceSets {
     gameTest {
@@ -90,8 +90,6 @@ minecraft {
         }
 
         client {
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', mod_id
             if (project.hasProperty('verifyClient')) {
                 property 'dragonloot.verifyClient', 'true'
                 args '--width', '1280', '--height', '720'
@@ -104,19 +102,14 @@ minecraft {
         }
 
         server {
-            property 'forge.enabledGameTestNamespaces', mod_id
             args '--nogui'
-        }
-
-        // This run config launches GameTestServer and runs all registered gametests, then exits.
-        // By default, the server will crash when no gametests are provided.
-        // The gametest system is also enabled by default for other run configs under the /test command.
-        gameTestServer {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            workingDirectory project.file("run/${minecraft_version}-gametest")
-            mods {
-                "${mod_id}" {
-                    source sourceSets.gameTest
+            if (project.hasProperty('verifyServer')) {
+                property 'dragonloot.verifyServer', 'true'
+                workingDirectory project.file("run/${minecraft_version}-verification")
+                mods {
+                    "${mod_id}" {
+                        source sourceSets.gameTest
+                    }
                 }
             }
         }
@@ -169,9 +162,8 @@ dependencies {
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
-    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
-    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
-    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}")
     runtimeOnly fg.deobf("curse.maven:jade-324717:${jade_file_id}")
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
@@ -242,4 +234,46 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+tasks.matching { it.name == 'runServer' }.configureEach {
+    if (project.hasProperty('verifyServer')) {
+        doFirst {
+            ext.portVerificationStartedAt = System.currentTimeMillis()
+            def directory = project.file("run/${minecraft_version}-verification")
+            directory.mkdirs()
+            def eula = new File(directory, 'eula.txt')
+            if (!eula.exists()) {
+                eula.text = 'eula=true\n'
+            }
+            def properties = new File(directory, 'server.properties')
+            if (!properties.exists()) {
+                properties.text = 'server-ip=127.0.0.1\nserver-port=0\nonline-mode=false\n' +
+                        'level-name=port-verification\nlevel-type=default\ngenerate-structures=false\n' +
+                        'view-distance=2\nspawn-protection=0\nmax-tick-time=0\n'
+            }
+        }
+        doLast {
+            def log = project.file("run/${minecraft_version}-verification/logs/latest.log")
+            if (!log.exists() || log.lastModified() < portVerificationStartedAt ||
+                    !log.getText('UTF-8').contains('PORT_BEHAVIOR_VERIFICATION_PASSED: 7 tests')) {
+                throw new GradleException('Dedicated server port verification did not finish successfully; inspect its latest.log.')
+            }
+        }
+    }
+}
+
+tasks.matching { it.name == 'runClient' }.configureEach {
+    if (project.hasProperty('verifyClient')) {
+        doFirst {
+            ext.portVerificationStartedAt = System.currentTimeMillis()
+        }
+        doLast {
+            def log = project.file("run/${minecraft_version}/logs/latest.log")
+            if (!log.exists() || log.lastModified() < portVerificationStartedAt ||
+                    !log.getText('UTF-8').contains('PORT_CLIENT_VERIFICATION_PASSED:')) {
+                throw new GradleException('Client port verification did not finish successfully; inspect its latest.log.')
+            }
+        }
+    }
 }

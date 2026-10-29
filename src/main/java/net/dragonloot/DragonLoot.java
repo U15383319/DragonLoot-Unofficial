@@ -6,36 +6,36 @@ import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
 import net.dragonloot.init.ModMenus;
 import net.dragonloot.init.ModRecipes;
+import net.dragonloot.init.ModAttributes;
 import net.dragonloot.menu.DragonSmithingMenu;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.block.Blocks;
 import net.dragonloot.item.DragonCrossbowItem;
 import net.dragonloot.item.DragonShieldItem;
-import net.minecraft.util.Mth;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemCooldowns;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.item.Item;
+import net.minecraft.util.CooldownTracker;
+import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootPool;
+import net.minecraft.loot.ItemLootEntry;
+import net.minecraft.loot.conditions.RandomChance;
+import net.minecraft.loot.ConstantRange;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -43,7 +43,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -62,7 +62,10 @@ public class DragonLoot {
         ModEntities.ENTITY_TYPES.register(modBus);
         ModMenus.MENUS.register(modBus);
         ModRecipes.SERIALIZERS.register(modBus);
-        ModRecipes.TYPES.register(modBus);
+        ModAttributes.ATTRIBUTES.register(modBus);
+        modBus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) ->
+                event.enqueueWork(ModRecipes::registerType));
+        net.dragonloot.network.DragonLootNetwork.register();
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DragonLootConfig.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
@@ -78,23 +81,25 @@ public class DragonLoot {
             return;
         }
         event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.sidedSuccess(event.getWorld().isClientSide));
-        if (event.getPlayer() instanceof ServerPlayer player) {
-            NetworkHooks.openGui(player, new SimpleMenuProvider((id, inventory, user) ->
-                    new DragonSmithingMenu(id, inventory, ContainerLevelAccess.create(event.getWorld(), event.getPos())),
-                    new TranslatableComponent("container.upgrade")));
+        event.setCancellationResult(ActionResultType.sidedSuccess(event.getWorld().isClientSide));
+        if (event.getPlayer() instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+            NetworkHooks.openGui(player, new SimpleNamedContainerProvider((id, inventory, user) ->
+                    new DragonSmithingMenu(id, inventory, IWorldPosCallable.create(event.getWorld(), event.getPos())),
+                    new TranslationTextComponent("container.upgrade")));
         }
     }
 
     @SubscribeEvent
     public void onDragonDrops(LivingDropsEvent event) {
-        if (!(event.getEntity() instanceof EnderDragon dragon) || dragon.level.isClientSide()) {
+        if (!(event.getEntity() instanceof EnderDragonEntity) || event.getEntity().level.isClientSide()) {
             return;
         }
+        EnderDragonEntity dragon = (EnderDragonEntity) event.getEntity();
 
         int nearbyPlayers = dragon.level.getEntitiesOfClass(
-                net.minecraft.world.entity.player.Player.class,
-                new AABB(dragon.blockPosition()).inflate(128.0D),
+                net.minecraft.entity.player.PlayerEntity.class,
+                new AxisAlignedBB(dragon.blockPosition()).inflate(128.0D),
                 player -> !player.isSpectator()).size();
 
         int total = DragonLootConfig.scaleMinimumDropAmount();
@@ -112,10 +117,14 @@ public class DragonLoot {
 
     @SubscribeEvent
     public void onDragonCrossbowImpact(ProjectileImpactEvent event) {
-        if (!(event.getProjectile() instanceof AbstractArrow arrow)
-                || !(arrow.getOwner() instanceof net.minecraft.world.entity.LivingEntity owner)) {
+        if (!(event.getEntity() instanceof AbstractArrowEntity)) {
             return;
         }
+        AbstractArrowEntity arrow = (AbstractArrowEntity) event.getEntity();
+        if (!(arrow.getOwner() instanceof net.minecraft.entity.LivingEntity)) {
+            return;
+        }
+        net.minecraft.entity.LivingEntity owner = (net.minecraft.entity.LivingEntity) arrow.getOwner();
 
         if (owner.getMainHandItem().getItem() instanceof DragonCrossbowItem
                 || owner.getOffhandItem().getItem() instanceof DragonCrossbowItem) {
@@ -150,20 +159,20 @@ public class DragonLoot {
     }
 
     @SuppressWarnings("unchecked")
-    private int getReducedDragonShieldCooldownTicks(ItemCooldowns itemCooldowns) {
+    private int getReducedDragonShieldCooldownTicks(CooldownTracker itemCooldowns) {
         try {
-            Map<Item, ?> cooldowns = ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, itemCooldowns, "f_41515_");
-            Integer tickCount = ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, itemCooldowns, "f_41516_");
+            Map<Item, ?> cooldowns = ObfuscationReflectionHelper.getPrivateValue(CooldownTracker.class, itemCooldowns, "field_185147_a");
+            Integer tickCount = ObfuscationReflectionHelper.getPrivateValue(CooldownTracker.class, itemCooldowns, "field_185148_b");
             Object cooldown = cooldowns == null ? null : cooldowns.get(ModItems.DRAGON_SHIELD.get());
             if (cooldown == null || tickCount == null) {
                 return DragonShieldItem.FALLBACK_DISABLE_COOLDOWN_TICKS;
             }
 
-            int startTime = getCooldownInstanceField(cooldown, "f_41533_");
-            int endTime = getCooldownInstanceField(cooldown, "f_41534_");
+            int startTime = getCooldownInstanceField(cooldown, "field_185137_a");
+            int endTime = getCooldownInstanceField(cooldown, "field_185138_b");
             int originalDuration = Math.max(1, endTime - startTime);
             int remainingDuration = Math.max(1, endTime - tickCount);
-            int reducedDuration = Math.max(1, Mth.ceil(originalDuration * DragonLootConfig.dragonShieldDisableCooldownMultiplier()));
+            int reducedDuration = Math.max(1, MathHelper.ceil(originalDuration * DragonLootConfig.dragonShieldDisableCooldownMultiplier()));
             return Math.min(remainingDuration, reducedDuration);
         } catch (RuntimeException | LinkageError ignored) {
             return DragonShieldItem.FALLBACK_DISABLE_COOLDOWN_TICKS;
@@ -181,9 +190,9 @@ public class DragonLoot {
         if (new ResourceLocation("minecraft", "chests/end_city_treasure").equals(event.getName())) {
             event.getTable().addPool(LootPool.lootPool()
                     .name("dragonloot_dragon_upgrade_template")
-                    .setRolls(ConstantValue.exactly(1.0F))
-                    .add(LootItem.lootTableItem(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()))
-                    .when(LootItemRandomChanceCondition.randomChance(0.25F))
+                    .setRolls(ConstantRange.exactly(1))
+                    .add(ItemLootEntry.lootTableItem(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()))
+                    .when(RandomChance.randomChance(0.25F))
                     .build());
         }
     }

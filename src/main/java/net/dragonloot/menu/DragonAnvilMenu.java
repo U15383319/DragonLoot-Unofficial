@@ -2,15 +2,15 @@ package net.dragonloot.menu;
 
 import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModBlocks;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AnvilMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.RepairContainer;
+import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.BlockState;
 
-public class DragonAnvilMenu extends AnvilMenu {
-    public DragonAnvilMenu(int containerId, Inventory inventory, ContainerLevelAccess access) {
+public class DragonAnvilMenu extends RepairContainer {
+    public DragonAnvilMenu(int containerId, PlayerInventory inventory, IWorldPosCallable access) {
         super(containerId, inventory, access);
     }
 
@@ -28,12 +28,12 @@ public class DragonAnvilMenu extends AnvilMenu {
     }
 
     @Override
-    protected boolean mayPickup(Player player, boolean hasOutput) {
-        return hasOutput && getCost() > 0 && (player.getAbilities().instabuild || player.experienceLevel >= getCost());
+    protected boolean mayPickup(PlayerEntity player, boolean hasOutput) {
+        return hasOutput && getCost() > 0 && (player.abilities.instabuild || player.experienceLevel >= getCost());
     }
 
     @Override
-    protected void onTake(Player player, ItemStack stack) {
-        super.onTake(player, stack);
+    protected ItemStack onTake(PlayerEntity player, ItemStack stack) {
+        return super.onTake(player, stack);
     }
 }

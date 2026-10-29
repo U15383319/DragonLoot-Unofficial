@@ -3,17 +3,17 @@ package net.dragonloot.item;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import java.util.UUID;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.util.DamageSource;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.IArmorMaterial;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 
 public class DragonArmorItem extends ArmorItem {
     private static final UUID[] ARMOR_UUIDS = new UUID[]{
@@ -25,11 +25,11 @@ public class DragonArmorItem extends ArmorItem {
     private final Multimap<Attribute, AttributeModifier> dragonModifiers;
     private final boolean winged;
 
-    public DragonArmorItem(ArmorMaterial material, EquipmentSlot slot, Properties properties) {
+    public DragonArmorItem(IArmorMaterial material, EquipmentSlotType slot, Properties properties) {
         this(material, slot, properties, false);
     }
 
-    public DragonArmorItem(ArmorMaterial material, EquipmentSlot slot, Properties properties, boolean winged) {
+    public DragonArmorItem(IArmorMaterial material, EquipmentSlotType slot, Properties properties, boolean winged) {
         super(material, slot, properties);
         this.winged = winged;
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
@@ -44,7 +44,7 @@ public class DragonArmorItem extends ArmorItem {
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlotType slot) {
         return slot == getSlot() ? dragonModifiers : super.getDefaultAttributeModifiers(slot);
     }
 
@@ -58,7 +58,7 @@ public class DragonArmorItem extends ArmorItem {
         if (winged && flightTicks % 20 == 0 && stack.getDamageValue() >= stack.getMaxDamage() - 1) {
             ItemStack brokenElytra = new ItemStack(Items.ELYTRA);
             brokenElytra.setDamageValue(Items.ELYTRA.getMaxDamage(brokenElytra));
-            entity.setItemSlot(EquipmentSlot.CHEST, brokenElytra);
+            entity.setItemSlot(EquipmentSlotType.CHEST, brokenElytra);
             entity.playSound(SoundEvents.ITEM_BREAK, 0.8F, 0.8F + entity.getRandom().nextFloat() * 0.4F);
         }
         return winged;

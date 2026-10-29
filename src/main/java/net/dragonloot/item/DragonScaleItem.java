@@ -1,7 +1,7 @@
 package net.dragonloot.item;
 
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.item.Item;
+import net.minecraft.util.DamageSource;
+import net.minecraft.item.Item;
 
 public class DragonScaleItem extends Item {
     public DragonScaleItem(Properties properties) {

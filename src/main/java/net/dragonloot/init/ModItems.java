@@ -2,12 +2,12 @@ package net.dragonloot.init;
 
 import net.dragonloot.DragonLoot;
 import net.dragonloot.item.*;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fml.RegistryObject;
 
 public final class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, DragonLoot.MOD_ID);
@@ -22,15 +22,15 @@ public final class ModItems {
             () -> new DragonHorseArmorItem(properties().stacksTo(1).fireResistant()));
 
     public static final RegistryObject<Item> DRAGON_HELMET = ITEMS.register("dragon_helmet",
-            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlot.HEAD, properties().fireResistant()));
+            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlotType.HEAD, properties().fireResistant()));
     public static final RegistryObject<Item> DRAGON_CHESTPLATE = ITEMS.register("dragon_chestplate",
-            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlot.CHEST, properties().fireResistant()));
+            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlotType.CHEST, properties().fireResistant()));
     public static final RegistryObject<Item> DRAGON_LEGGINGS = ITEMS.register("dragon_leggings",
-            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlot.LEGS, properties().fireResistant()));
+            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlotType.LEGS, properties().fireResistant()));
     public static final RegistryObject<Item> DRAGON_BOOTS = ITEMS.register("dragon_boots",
-            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlot.FEET, properties().fireResistant()));
+            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlotType.FEET, properties().fireResistant()));
     public static final RegistryObject<Item> UPGRADED_DRAGON_CHESTPLATE = ITEMS.register("upgraded_dragon_chestplate",
-            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlot.CHEST, properties().fireResistant(), true));
+            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, EquipmentSlotType.CHEST, properties().fireResistant(), true));
 
     public static final RegistryObject<Item> DRAGON_PICKAXE = ITEMS.register("dragon_pickaxe",
             () -> new DragonPickaxeItem(DragonToolMaterial.INSTANCE, 1, -2.8F, properties().fireResistant()));
