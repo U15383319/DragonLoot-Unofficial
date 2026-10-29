@@ -1,11 +1,11 @@
 package net.dragonloot.item;
 
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.util.DamageSource;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.IItemTier;
 
 public class DragonAxeItem extends AxeItem {
-    public DragonAxeItem(Tier tier, float attackDamage, float attackSpeed, Properties properties) {
+    public DragonAxeItem(IItemTier tier, float attackDamage, float attackSpeed, Properties properties) {
         super(tier, attackDamage, attackSpeed, properties);
     }
 

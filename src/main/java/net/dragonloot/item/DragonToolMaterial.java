@@ -2,10 +2,10 @@ package net.dragonloot.item;
 
 import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModItems;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.item.IItemTier;
+import net.minecraft.item.crafting.Ingredient;
 
-public enum DragonToolMaterial implements Tier {
+public enum DragonToolMaterial implements IItemTier {
     INSTANCE;
 
     @Override

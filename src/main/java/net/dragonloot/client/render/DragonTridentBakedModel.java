@@ -1,42 +1,42 @@
 package net.dragonloot.client.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.util.Direction;
 import java.util.Random;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class DragonTridentBakedModel implements BakedModel {
-    private final BakedModel baseModel;
-    private final BakedModel inHandModel;
-    private final BakedModel throwingModel;
+public class DragonTridentBakedModel implements IBakedModel {
+    private final IBakedModel baseModel;
+    private final IBakedModel inHandModel;
+    private final IBakedModel throwingModel;
     private final boolean throwing;
-    private final ItemOverrides overrides;
+    private final ItemOverrideList overrides;
 
-    public DragonTridentBakedModel(BakedModel baseModel, BakedModel inHandModel, BakedModel throwingModel) {
+    public DragonTridentBakedModel(IBakedModel baseModel, IBakedModel inHandModel, IBakedModel throwingModel) {
         this(baseModel, inHandModel, throwingModel, false);
     }
 
-    private DragonTridentBakedModel(BakedModel baseModel, BakedModel inHandModel, BakedModel throwingModel, boolean throwing) {
+    private DragonTridentBakedModel(IBakedModel baseModel, IBakedModel inHandModel, IBakedModel throwingModel, boolean throwing) {
         this.baseModel = baseModel;
         this.inHandModel = inHandModel;
         this.throwingModel = throwingModel;
         this.throwing = throwing;
-        this.overrides = new ItemOverrides() {
+        this.overrides = new ItemOverrideList() {
             @Nullable
             @Override
-            public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level,
-                                      @Nullable LivingEntity entity, int seed) {
+            public IBakedModel resolve(IBakedModel model, ItemStack stack, @Nullable ClientWorld level,
+                                      @Nullable LivingEntity entity) {
                 boolean isThrowing = entity != null && entity.isUsingItem() && entity.getUseItem() == stack;
                 return new DragonTridentBakedModel(baseModel, inHandModel, throwingModel, isThrowing);
             }
@@ -74,29 +74,29 @@ public class DragonTridentBakedModel implements BakedModel {
     }
 
     @Override
-    public ItemTransforms getTransforms() {
+    public ItemCameraTransforms getTransforms() {
         return baseModel.getTransforms();
     }
 
     @Override
-    public ItemOverrides getOverrides() {
+    public ItemOverrideList getOverrides() {
         return overrides;
     }
 
     @Override
-    public BakedModel handlePerspective(ItemTransforms.TransformType displayContext, PoseStack poseStack) {
+    public IBakedModel handlePerspective(ItemCameraTransforms.TransformType displayContext, MatrixStack poseStack) {
         if (isHandContext(displayContext)) {
-            BakedModel model = throwing ? throwingModel : inHandModel;
+            IBakedModel model = throwing ? throwingModel : inHandModel;
             return model.handlePerspective(displayContext, poseStack);
         }
 
         return baseModel.handlePerspective(displayContext, poseStack);
     }
 
-    private static boolean isHandContext(ItemTransforms.TransformType displayContext) {
-        return displayContext == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND
-                || displayContext == ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
-                || displayContext == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND
-                || displayContext == ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+    private static boolean isHandContext(ItemCameraTransforms.TransformType displayContext) {
+        return displayContext == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND
+                || displayContext == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
+                || displayContext == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND
+                || displayContext == ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
     }
 }

@@ -1,11 +1,11 @@
 package net.dragonloot.item;
 
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.util.DamageSource;
+import net.minecraft.item.HoeItem;
+import net.minecraft.item.IItemTier;
 
 public class DragonHoeItem extends HoeItem {
-    public DragonHoeItem(Tier tier, int attackDamage, float attackSpeed, Properties properties) {
+    public DragonHoeItem(IItemTier tier, int attackDamage, float attackSpeed, Properties properties) {
         super(tier, attackDamage, attackSpeed, properties);
     }
 

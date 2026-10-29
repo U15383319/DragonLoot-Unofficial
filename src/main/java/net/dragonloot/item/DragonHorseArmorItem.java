@@ -1,7 +1,7 @@
 package net.dragonloot.item;
 
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.item.HorseArmorItem;
+import net.minecraft.util.DamageSource;
+import net.minecraft.item.HorseArmorItem;
 
 public class DragonHorseArmorItem extends HorseArmorItem {
     public DragonHorseArmorItem(Properties properties) {
