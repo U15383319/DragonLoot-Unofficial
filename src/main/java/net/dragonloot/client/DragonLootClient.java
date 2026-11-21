@@ -22,6 +22,9 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -39,6 +42,11 @@ public final class DragonLootClient {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
+        if (ModList.get().isLoaded("cloth-config")) {
+            ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY,
+                    () -> (minecraft, parent) -> DragonLootConfigScreen.create(parent));
+        }
+
         RenderingRegistry.registerEntityRenderingHandler(ModEntities.DRAGON_TRIDENT.get(), DragonTridentRenderer::new);
         event.enqueueWork(() -> {
             ScreenManager.register(ModMenus.DRAGON_SMITHING.get(), DragonSmithingScreen::new);

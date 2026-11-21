@@ -33,6 +33,7 @@
   "itemGroup.dragonloot.dragonloot": "Dragon Loot",
 
   "text.autoconfig.dragonloot.title": "DragonLoot Config",
+  "text.autoconfig.dragonloot.category.general": "General",
   "text.autoconfig.dragonloot.option.scale_minimum_drop_amount": "Scale minimum drop amount",
   "text.autoconfig.dragonloot.option.additional_scales_per_player": "Additional scales per player",
   "text.autoconfig.dragonloot.option.additional_scale_drop_chance": "Additional scale drop chance",
@@ -47,6 +48,9 @@
   "text.autoconfig.dragonloot.option.dragon_armor_toughness": "Dragon Armor Toughness",
   "text.autoconfig.dragonloot.option.dragon_armor_knockback_resistance": "Dragon Armor Knockback Resistance",
   "text.autoconfig.dragonloot.option.dragon_armor_enchantability": "Dragon Armor Enchantability",
+  "text.autoconfig.dragonloot.option.dragon_tool_enchantability": "Dragon Tool Enchantability",
+  "text.autoconfig.dragonloot.option.dragon_shield_disable_cooldown_multiplier": "Dragon Shield Disable Cooldown Multiplier",
+  "text.autoconfig.dragonloot.option.dragon_sword_entity_reach_bonus": "Dragon Sword Entity Reach Bonus",
 
   "dragonloot.advancements.dragon_armor.title": "From the scales of the beast",
   "dragonloot.advancements.dragon_armor.description": "Get a full suit of Dragon armor"
