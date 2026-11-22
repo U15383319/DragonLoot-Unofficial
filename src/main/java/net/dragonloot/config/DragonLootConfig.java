@@ -20,6 +20,8 @@ public final class DragonLootConfig {
     private static final double DEFAULT_DRAGON_ITEM_BASE_DAMAGE = 5.0D;
     private static final int DEFAULT_DRAGON_TOOL_ENCHANTABILITY = 20;
     private static final boolean DEFAULT_DRAGON_ANVIL_NO_CAP = true;
+    private static final double DEFAULT_DRAGON_ANVIL_COST_MULTIPLIER = 0.8D;
+    private static final int DEFAULT_DRAGON_ANVIL_MAX_COST = 30;
     private static final double DEFAULT_DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER = 0.4D;
     private static final double DEFAULT_DRAGON_SWORD_ENTITY_REACH_BONUS = 0.5D;
 
@@ -38,6 +40,8 @@ public final class DragonLootConfig {
     private static final ForgeConfigSpec.DoubleValue DRAGON_ITEM_BASE_DAMAGE;
     private static final ForgeConfigSpec.IntValue DRAGON_TOOL_ENCHANTABILITY;
     private static final ForgeConfigSpec.BooleanValue DRAGON_ANVIL_NO_CAP;
+    private static final ForgeConfigSpec.DoubleValue DRAGON_ANVIL_COST_MULTIPLIER;
+    private static final ForgeConfigSpec.IntValue DRAGON_ANVIL_MAX_COST;
     private static final ForgeConfigSpec.DoubleValue DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER;
     private static final ForgeConfigSpec.DoubleValue DRAGON_SWORD_ENTITY_REACH_BONUS;
 
@@ -57,7 +61,15 @@ public final class DragonLootConfig {
         DRAGON_ITEM_DURABILITY_MULTIPLIER = builder.worldRestart().defineInRange("dragon_item_durability_multiplier", 37, 1, 1000);
         DRAGON_ITEM_BASE_DAMAGE = builder.worldRestart().defineInRange("dragon_item_base_damage", 5.0D, 0.0D, 100.0D);
         DRAGON_TOOL_ENCHANTABILITY = builder.worldRestart().defineInRange("dragon_tool_enchantability", 20, 0, 100);
-        DRAGON_ANVIL_NO_CAP = builder.worldRestart().define("dragon_anvil_no_cap", true);
+        DRAGON_ANVIL_NO_CAP = builder
+                .comment("Enable the dragon anvil discount and replace vanilla's Too Expensive rule.")
+                .define("dragon_anvil_no_cap", DEFAULT_DRAGON_ANVIL_NO_CAP);
+        DRAGON_ANVIL_COST_MULTIPLIER = builder
+                .comment("Fraction of the original level cost. Rounded up, with a minimum cost of 1 level.")
+                .defineInRange("dragon_anvil_cost_multiplier", DEFAULT_DRAGON_ANVIL_COST_MULTIPLIER, 0.0D, 1.0D);
+        DRAGON_ANVIL_MAX_COST = builder
+                .comment("Maximum number of levels the dragon anvil charges. Menu costs are sent as signed shorts.")
+                .defineInRange("dragon_anvil_max_cost", DEFAULT_DRAGON_ANVIL_MAX_COST, 1, Short.MAX_VALUE);
         DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER = builder
                 .comment("Multiplier applied to dragon shield disable cooldown. 0.4 = 40% of the original cooldown.")
                 .defineInRange("dragon_shield_disable_cooldown_multiplier", 0.4D, 0.0D, 1.0D);
@@ -85,6 +97,8 @@ public final class DragonLootConfig {
     public static float itemBaseDamage() { return getOrDefault(DRAGON_ITEM_BASE_DAMAGE, DEFAULT_DRAGON_ITEM_BASE_DAMAGE).floatValue(); }
     public static int toolEnchantability() { return getOrDefault(DRAGON_TOOL_ENCHANTABILITY, DEFAULT_DRAGON_TOOL_ENCHANTABILITY); }
     public static boolean dragonAnvilNoCap() { return getOrDefault(DRAGON_ANVIL_NO_CAP, DEFAULT_DRAGON_ANVIL_NO_CAP); }
+    public static double dragonAnvilCostMultiplier() { return getOrDefault(DRAGON_ANVIL_COST_MULTIPLIER, DEFAULT_DRAGON_ANVIL_COST_MULTIPLIER); }
+    public static int dragonAnvilMaxCost() { return getOrDefault(DRAGON_ANVIL_MAX_COST, DEFAULT_DRAGON_ANVIL_MAX_COST); }
     public static double dragonShieldDisableCooldownMultiplier() { return getOrDefault(DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER, DEFAULT_DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER); }
     public static double dragonSwordEntityReachBonus() { return getOrDefault(DRAGON_SWORD_ENTITY_REACH_BONUS, DEFAULT_DRAGON_SWORD_ENTITY_REACH_BONUS); }
 

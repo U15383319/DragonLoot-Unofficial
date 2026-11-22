@@ -5,6 +5,7 @@ import net.dragonloot.init.ModBlocks;
 import net.dragonloot.init.ModCreativeTabs;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
+import net.dragonloot.init.ModMenus;
 import net.dragonloot.item.DragonCrossbowItem;
 import net.dragonloot.item.DragonShieldItem;
 import net.minecraft.util.Mth;
@@ -50,6 +51,7 @@ public class DragonLoot {
         ModItems.ITEMS.register(modBus);
         ModEntities.ENTITY_TYPES.register(modBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modBus);
+        ModMenus.MENUS.register(modBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DragonLootConfig.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
