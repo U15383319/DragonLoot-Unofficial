@@ -27,9 +27,9 @@
   "item.dragonloot.dragon_trident": "Dragon Trident",
   "entity.dragonloot.dragon_trident": "Dragon Trident",
 
-  "itemGroup.dragonloot.dragonloot": "Dragon Loot",
+  "itemGroup.dragonloot.dragonloot": "DragonLoot Onyx",
 
-  "text.autoconfig.dragonloot.title": "DragonLoot Config",
+  "text.autoconfig.dragonloot.title": "DragonLoot Onyx Config",
   "text.autoconfig.dragonloot.category.general": "General",
   "text.autoconfig.dragonloot.option.scale_minimum_drop_amount": "Scale minimum drop amount",
   "text.autoconfig.dragonloot.option.additional_scales_per_player": "Additional scales per player",

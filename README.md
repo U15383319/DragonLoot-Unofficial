@@ -1,4 +1,4 @@
-# DragonLoot Unofficial
+# DragonLoot Onyx
 
 An unofficial Forge port of [DragonLoot for Fabric](https://github.com/GitPois1x/DragonLoot), for Minecraft 1.20.1.
 
@@ -16,7 +16,7 @@ Defeat the Ender Dragon for scales and use them to upgrade armor, tools, weapons
 
 Use Minecraft 1.20.1, [Forge 47.x](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html), and Java 17 or later. Install the JAR on both client and server for multiplayer.
 
-For in-game settings, install [Cloth Config for Forge 1.20.1](https://www.curseforge.com/minecraft/mc-mods/cloth-config/files/5729105) and open **Mods → DragonLoot Unofficial → Config**.
+For in-game settings, install [Cloth Config for Forge 1.20.1](https://www.curseforge.com/minecraft/mc-mods/cloth-config/files/5729105) and open **Mods → DragonLoot Onyx → Config**.
 
 ## Credits
 

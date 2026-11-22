@@ -20,9 +20,9 @@
   "item.dragonloot.dragon_trident": "드래곤 삼지창",
   "entity.dragonloot.dragon_trident": "드래곤 삼지창",
 
-  "itemGroup.dragonloot.dragonloot": "Dragon Loot",
+  "itemGroup.dragonloot.dragonloot": "DragonLoot Onyx",
 
-  "text.autoconfig.dragonloot.title": "DragonLoot 설정",
+  "text.autoconfig.dragonloot.title": "DragonLoot Onyx 설정",
   "text.autoconfig.dragonloot.option.scale_minimum_drop_amount": "비늘 최소 드랍 개수",
   "text.autoconfig.dragonloot.option.additional_scales_per_player": "플레이어당 추가 비늘",
   "text.autoconfig.dragonloot.option.additional_scale_drop_chance": "추가 비늘 드롭율",

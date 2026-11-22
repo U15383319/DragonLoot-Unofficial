@@ -2,7 +2,7 @@
 
 ## 1.0.0
 
-First release of DragonLoot Unofficial for Minecraft 1.20.1 and Forge 47.x.
+First release of DragonLoot Onyx for Minecraft 1.20.1 and Forge 47.x.
 
 - Collect dragon scales from the Ender Dragon to upgrade armor, tools, weapons, horse armor, and anvils.
 - Find the Dragon Upgrade Smithing Template in End City chests and duplicate it with amethyst shards and a purpur block.
