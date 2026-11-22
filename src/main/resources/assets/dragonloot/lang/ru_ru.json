@@ -20,9 +20,9 @@
   "item.dragonloot.dragon_trident": "Драконий трезубец",
   "entity.dragonloot.dragon_trident": "Драконий трезубец",
 
-  "itemGroup.dragonloot.dragonloot": "Драконья добыча",
+  "itemGroup.dragonloot.dragonloot": "DragonLoot Onyx",
 
-  "text.autoconfig.dragonloot.title": "Настройка драконьей добычи",
+  "text.autoconfig.dragonloot.title": "Настройки DragonLoot Onyx",
   "text.autoconfig.dragonloot.option.scale_minimum_drop_amount": "Минимальное количество выпадающей чешуи",
   "text.autoconfig.dragonloot.option.additional_scales_per_player": "Дополнительное число чешуи за каждого игрока",
   "text.autoconfig.dragonloot.option.additional_scale_drop_chance": "Дополнительный шанс выпадения чешуи",
