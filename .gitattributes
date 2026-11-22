@@ -3,3 +3,7 @@
 # are changed when only line endings change.
 src/generated/**/.cache/cache text eol=lf
 src/generated/**/*.json text eol=lf
+
+# Preserve the third-party license files as supplied.
+licenses/*.txt -text
+licenses/MinecraftForge-MDK.txt whitespace=-blank-at-eol

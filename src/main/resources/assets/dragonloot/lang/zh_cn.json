@@ -29,9 +29,9 @@
   "item.dragonloot.dragon_trident": "龙三叉戟",
   "entity.dragonloot.dragon_trident": "龙三叉戟",
 
-  "itemGroup.dragonloot.dragonloot": "龙战利品",
+  "itemGroup.dragonloot.dragonloot": "DragonLoot Onyx",
 
-  "text.autoconfig.dragonloot.title": "龙战利品配置",
+  "text.autoconfig.dragonloot.title": "DragonLoot Onyx 配置",
   "text.autoconfig.dragonloot.category.general": "常规",
   "text.autoconfig.dragonloot.option.scale_minimum_drop_amount": "龙鳞最低掉落数量",
   "text.autoconfig.dragonloot.option.additional_scales_per_player": "每位玩家额外龙鳞",
