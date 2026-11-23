@@ -1,6 +1,6 @@
 # DragonLoot Onyx
 
-An unofficial Forge port of [DragonLoot for Fabric](https://github.com/GitPois1x/DragonLoot), for Minecraft 1.20.1.
+An unofficial NeoForge port of [DragonLoot for Fabric](https://github.com/GitPois1x/DragonLoot), for Minecraft 1.21.1.
 
 Defeat the Ender Dragon for scales and use them to upgrade armor, tools, weapons, horse armor, and anvils. Combine a dragon chestplate with an elytra to glide.
 
@@ -14,14 +14,14 @@ Defeat the Ender Dragon for scales and use them to upgrade armor, tools, weapons
 
 ## Installation
 
-Use Minecraft 1.20.1, [Forge 47.x](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html), and Java 17 or later. Install the JAR on both client and server for multiplayer.
+Use Minecraft 1.21.1, [NeoForge 21.1.266 or later in the 21.1 series](https://projects.neoforged.net/neoforged/neoforge), and Java 21. Install the JAR on both client and server for multiplayer.
 
-For in-game settings, install [Cloth Config for Forge 1.20.1](https://www.curseforge.com/minecraft/mc-mods/cloth-config/files/5729105) and open **Mods → DragonLoot Onyx → Config**.
+For in-game settings, install [Cloth Config 15 for NeoForge](https://www.curseforge.com/minecraft/mc-mods/cloth-config/files/5623420) and open **Mods → DragonLoot Onyx → Config**.
 
 ## Credits
 
 - Original DragonLoot by **Pois1x**, **Globox_Z**, and upstream contributors.
-- Unofficial Forge port by **Gvxwsur**.
+- Unofficial NeoForge port by **Gvxwsur**.
 
 ## License
 

@@ -1,192 +1,99 @@
 package net.dragonloot.entity;
 
-import net.dragonloot.config.DragonLootConfig;
+import com.mojang.serialization.Dynamic;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
+import net.dragonloot.item.DragonTridentItem;
+import net.minecraft.SharedConstants;
+import net.minecraft.core.Position;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.datafix.DataFixers;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
-public class DragonTridentEntity extends AbstractArrow {
-    private static final EntityDataAccessor<Byte> ID_LOYALTY = SynchedEntityData.defineId(DragonTridentEntity.class, EntityDataSerializers.BYTE);
-    private static final EntityDataAccessor<Boolean> ID_FOIL = SynchedEntityData.defineId(DragonTridentEntity.class, EntityDataSerializers.BOOLEAN);
-
-    private ItemStack tridentStack = new ItemStack(ModItems.DRAGON_TRIDENT.get());
-    private boolean dealtDamage;
-    public int clientSideReturnTridentTickCount;
+public class DragonTridentEntity extends ThrownTrident {
+    private static final int FORGE_1_20_1_DATA_VERSION = 3465;
 
     public DragonTridentEntity(EntityType<? extends DragonTridentEntity> type, Level level) {
         super(type, level);
     }
 
     public DragonTridentEntity(Level level, LivingEntity owner, ItemStack stack) {
-        super(ModEntities.DRAGON_TRIDENT.get(), owner, level);
-        this.tridentStack = stack.copy();
-        this.entityData.set(ID_LOYALTY, (byte) EnchantmentHelper.getLoyalty(stack));
-        this.entityData.set(ID_FOIL, stack.hasFoil());
+        this(ModEntities.DRAGON_TRIDENT.get(), level);
+        setPos(owner.getX(), owner.getEyeY() - 0.1, owner.getZ());
+        setOwner(owner);
+        initializeItem(stack);
     }
 
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(ID_LOYALTY, (byte) 0);
-        this.entityData.define(ID_FOIL, false);
+    public DragonTridentEntity(Level level, Position position, ItemStack stack) {
+        this(ModEntities.DRAGON_TRIDENT.get(), level);
+        setPos(position.x(), position.y(), position.z());
+        initializeItem(stack);
     }
 
-    @Override
-    public void tick() {
-        if (this.inGroundTime > 4) {
-            this.dealtDamage = true;
-        }
-
-        Entity owner = this.getOwner();
-        int loyalty = this.entityData.get(ID_LOYALTY);
-        if ((this.dealtDamage || this.isNoPhysics()) && owner != null && loyalty > 0) {
-            if (!isAcceptableReturnOwner()) {
-                if (!this.level().isClientSide && this.pickup == Pickup.ALLOWED) {
-                    this.spawnAtLocation(this.getPickupItem(), 0.1F);
-                }
-                this.discard();
-            } else {
-                this.setNoPhysics(true);
-                Vec3 returnVector = owner.getEyePosition().subtract(this.position());
-                this.setPosRaw(this.getX(), this.getY() + returnVector.y * 0.015D * loyalty, this.getZ());
-                this.setDeltaMovement(this.getDeltaMovement().scale(0.95D).add(returnVector.normalize().scale(0.05D * loyalty)));
-                if (this.clientSideReturnTridentTickCount == 0) {
-                    this.playSound(SoundEvents.TRIDENT_RETURN, 10.0F, 1.0F);
-                }
-                this.clientSideReturnTridentTickCount++;
-            }
-        }
-
-        super.tick();
-    }
-
-    private boolean isAcceptableReturnOwner() {
-        Entity owner = this.getOwner();
-        return owner != null && owner.isAlive() && (!(owner instanceof ServerPlayer player) || !player.isSpectator());
-    }
-
-    public boolean isFoil() {
-        return this.entityData.get(ID_FOIL);
-    }
-
-    @Override
-    protected ItemStack getPickupItem() {
-        return this.tridentStack.copy();
-    }
-
-    @Override
-    @Nullable
-    protected EntityHitResult findHitEntity(Vec3 startVec, Vec3 endVec) {
-        return this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
-    }
-
-    @Override
-    protected void onHitEntity(EntityHitResult result) {
-        Entity target = result.getEntity();
-        float damage = (float) (8.0D + DragonLootConfig.itemBaseDamage() / 5.0D);
-        if (target instanceof LivingEntity livingTarget) {
-            damage += EnchantmentHelper.getDamageBonus(this.tridentStack, livingTarget.getMobType());
-        }
-
-        Entity owner = this.getOwner();
-        var damageSource = this.damageSources().trident(this, owner == null ? this : owner);
-        this.dealtDamage = true;
-        SoundEvent sound = SoundEvents.TRIDENT_HIT;
-        if (target.hurt(damageSource, damage)) {
-            if (target.getType() == EntityType.ENDERMAN) {
-                return;
-            }
-            if (target instanceof LivingEntity livingTarget) {
-                if (owner instanceof LivingEntity livingOwner) {
-                    EnchantmentHelper.doPostHurtEffects(livingTarget, owner);
-                    EnchantmentHelper.doPostDamageEffects(livingOwner, livingTarget);
-                }
-                this.doPostHurtEffects(livingTarget);
-            }
-        }
-
-        this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
-        float volume = 1.0F;
-        if (this.level() instanceof ServerLevel serverLevel && serverLevel.isThundering() && EnchantmentHelper.hasChanneling(this.tridentStack)) {
-            var pos = target.blockPosition();
-            if (serverLevel.canSeeSky(pos)) {
-                LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(serverLevel);
-                if (lightning != null) {
-                    lightning.moveTo(Vec3.atBottomCenterOf(pos));
-                    lightning.setCause(owner instanceof ServerPlayer player ? player : null);
-                    serverLevel.addFreshEntity(lightning);
-                    sound = SoundEvents.TRIDENT_THUNDER;
-                    volume = 5.0F;
-                }
-            }
-        }
-        this.playSound(sound, volume, 1.0F);
-    }
-
-    @Override
-    protected SoundEvent getDefaultHitGroundSoundEvent() {
-        return SoundEvents.TRIDENT_HIT_GROUND;
-    }
-
-    @Override
-    public void playerTouch(Player player) {
-        Entity owner = this.getOwner();
-        if (owner == null || owner.getUUID().equals(player.getUUID())) {
-            super.playerTouch(player);
-        }
+    private void initializeItem(ItemStack stack) {
+        setPickupItemStack(stack.copyWithCount(1));
+        entityData.set(ID_LOYALTY, getLoyaltyFromItem(stack));
+        entityData.set(ID_FOIL, stack.hasFoil());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
+        if (!tag.contains("item", Tag.TAG_COMPOUND) && tag.contains("Dragon_Trident", Tag.TAG_COMPOUND)) {
+            // Earlier Forge versions saved the projectile stack under a custom NBT key.
+            var oldStack = new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("Dragon_Trident"));
+            var updated = DataFixers.getDataFixer().update(References.ITEM_STACK, oldStack,
+                    FORGE_1_20_1_DATA_VERSION, SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+            if (updated.getValue() instanceof CompoundTag item) {
+                tag = tag.copy();
+                tag.put("item", item);
+            }
+        }
         super.readAdditionalSaveData(tag);
-        if (tag.contains("Dragon_Trident", 10)) {
-            this.tridentStack = ItemStack.of(tag.getCompound("Dragon_Trident"));
+        entityData.set(ID_FOIL, getWeaponItem().hasFoil());
+    }
+
+    @Override
+    protected ItemStack getDefaultPickupItem() {
+        return new ItemStack(ModItems.DRAGON_TRIDENT.get());
+    }
+
+    @Override
+    protected void onHitEntity(EntityHitResult hit) {
+        Entity target = hit.getEntity();
+        Entity owner = getOwner();
+        var source = damageSources().trident(this, owner == null ? this : owner);
+        float damage = DragonTridentItem.attackDamage();
+        if (level() instanceof ServerLevel level) {
+            damage = EnchantmentHelper.modifyDamage(level, getWeaponItem(), target, source, damage);
         }
-        this.dealtDamage = tag.getBoolean("DealtDamage");
-        this.entityData.set(ID_LOYALTY, (byte) EnchantmentHelper.getLoyalty(this.tridentStack));
-    }
 
-    @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.put("Dragon_Trident", this.tridentStack.save(new CompoundTag()));
-        tag.putBoolean("DealtDamage", this.dealtDamage);
-    }
-
-    @Override
-    protected void tickDespawn() {
-        if (this.pickup != Pickup.ALLOWED || this.entityData.get(ID_LOYALTY) <= 0) {
-            super.tickDespawn();
+        dealtDamage = true;
+        if (target.hurt(source, damage)) {
+            if (target.getType() == EntityType.ENDERMAN) {
+                return;
+            }
+            if (level() instanceof ServerLevel level) {
+                EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, source, getWeaponItem());
+            }
+            if (target instanceof LivingEntity living) {
+                doKnockback(living, source);
+                doPostHurtEffects(living);
+            }
         }
-    }
 
-    @Override
-    protected float getWaterInertia() {
-        return 0.99F;
-    }
-
-    @Override
-    public boolean shouldRender(double x, double y, double z) {
-        return true;
+        setDeltaMovement(getDeltaMovement().multiply(-0.01, -0.1, -0.01));
+        playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F);
     }
 }

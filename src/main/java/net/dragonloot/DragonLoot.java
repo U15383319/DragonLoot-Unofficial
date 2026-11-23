@@ -6,14 +6,13 @@ import net.dragonloot.init.ModCreativeTabs;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
 import net.dragonloot.init.ModMenus;
-import net.dragonloot.item.DragonCrossbowItem;
-import net.dragonloot.item.DragonShieldItem;
+import net.dragonloot.item.DragonArmorMaterial;
+import net.dragonloot.menu.DragonAnvilMenu;
 import net.minecraft.util.Mth;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -21,44 +20,39 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.player.AnvilRepairEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.LootTableLoadEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.player.AnvilRepairEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.WeakHashMap;
 
 @Mod(DragonLoot.MOD_ID)
 public class DragonLoot {
     public static final String MOD_ID = "dragonloot";
-    private final Set<UUID> adjustedDragonShieldCooldowns = new HashSet<>();
+    private final Map<Player, ItemCooldowns.CooldownInstance> adjustedDragonShieldCooldowns = new WeakHashMap<>();
 
-    public DragonLoot() {
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        public DragonLoot(IEventBus modBus, ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.STARTUP, DragonLootConfig.SPEC, "dragonloot-common.toml");
+        DragonArmorMaterial.MATERIALS.register(modBus);
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModEntities.ENTITY_TYPES.register(modBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modBus);
         ModMenus.MENUS.register(modBus);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DragonLootConfig.SPEC);
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
     @SubscribeEvent
@@ -68,7 +62,7 @@ public class DragonLoot {
         }
 
         int nearbyPlayers = dragon.level().getEntitiesOfClass(
-                net.minecraft.world.entity.player.Player.class,
+                Player.class,
                 new AABB(dragon.blockPosition()).inflate(128.0D),
                 player -> !player.isSpectator()).size();
 
@@ -86,74 +80,42 @@ public class DragonLoot {
     }
 
     @SubscribeEvent
-    public void onDragonCrossbowImpact(ProjectileImpactEvent event) {
-        if (!(event.getProjectile() instanceof AbstractArrow arrow)
-                || !(arrow.getOwner() instanceof net.minecraft.world.entity.LivingEntity owner)) {
-            return;
-        }
-
-        if (owner.getMainHandItem().getItem() instanceof DragonCrossbowItem
-                || owner.getOffhandItem().getItem() instanceof DragonCrossbowItem) {
-            arrow.setBaseDamage(arrow.getBaseDamage() * 1.25D + 1.0D);
-        }
-    }
-
-    @SubscribeEvent
     public void onDragonAnvilRepair(AnvilRepairEvent event) {
-        if (event.getEntity().containerMenu instanceof net.dragonloot.menu.DragonAnvilMenu) {
+        if (event.getEntity().containerMenu instanceof DragonAnvilMenu) {
             event.setBreakChance(0.0F);
         }
     }
 
     @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || event.player.level().isClientSide) {
+    public void onPlayerTick(PlayerTickEvent.Post event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide()) {
             return;
         }
 
-        UUID playerId = event.player.getUUID();
-        if (!event.player.getCooldowns().isOnCooldown(ModItems.DRAGON_SHIELD.get())) {
-            this.adjustedDragonShieldCooldowns.remove(playerId);
+        ItemCooldowns cooldowns = player.getCooldowns();
+        var shield = ModItems.DRAGON_SHIELD.get();
+        var active = cooldowns.cooldowns.get(shield);
+        if (active == null) {
+            adjustedDragonShieldCooldowns.remove(player);
+            return;
+        }
+        if (active == adjustedDragonShieldCooldowns.get(player)) {
             return;
         }
 
-        if (!this.adjustedDragonShieldCooldowns.contains(playerId)
-                && event.player.getCooldowns().getCooldownPercent(ModItems.DRAGON_SHIELD.get(), 0.0F) > 0.75F) {
-            event.player.getCooldowns().addCooldown(ModItems.DRAGON_SHIELD.get(), this.getReducedDragonShieldCooldownTicks(event.player.getCooldowns()));
-            this.adjustedDragonShieldCooldowns.add(playerId);
+        int original = active.endTime - active.startTime;
+        int remaining = active.endTime - cooldowns.tickCount;
+        int duration = Math.max(1, Mth.ceil(original * DragonLootConfig.dragonShieldDisableCooldownMultiplier()));
+        if (duration < remaining) {
+            cooldowns.addCooldown(shield, duration);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private int getReducedDragonShieldCooldownTicks(ItemCooldowns itemCooldowns) {
-        try {
-            Map<Item, ?> cooldowns = ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, itemCooldowns, "f_41515_");
-            Integer tickCount = ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, itemCooldowns, "f_41516_");
-            Object cooldown = cooldowns == null ? null : cooldowns.get(ModItems.DRAGON_SHIELD.get());
-            if (cooldown == null || tickCount == null) {
-                return DragonShieldItem.FALLBACK_DISABLE_COOLDOWN_TICKS;
-            }
-
-            int startTime = getCooldownInstanceField(cooldown, "f_41533_");
-            int endTime = getCooldownInstanceField(cooldown, "f_41534_");
-            int originalDuration = Math.max(1, endTime - startTime);
-            int remainingDuration = Math.max(1, endTime - tickCount);
-            int reducedDuration = Math.max(1, Mth.ceil(originalDuration * DragonLootConfig.dragonShieldDisableCooldownMultiplier()));
-            return Math.min(remainingDuration, reducedDuration);
-        } catch (RuntimeException | LinkageError ignored) {
-            return DragonShieldItem.FALLBACK_DISABLE_COOLDOWN_TICKS;
-        }
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static int getCooldownInstanceField(Object cooldown, String fieldName) {
-        Integer value = (Integer) ObfuscationReflectionHelper.getPrivateValue((Class) cooldown.getClass(), cooldown, fieldName);
-        return value == null ? 0 : value;
+        adjustedDragonShieldCooldowns.put(player, cooldowns.cooldowns.get(shield));
     }
 
     @SubscribeEvent
     public void onLootTableLoad(LootTableLoadEvent event) {
-        if (new ResourceLocation("minecraft", "chests/end_city_treasure").equals(event.getName())) {
+        if (ResourceLocation.fromNamespaceAndPath("minecraft", "chests/end_city_treasure").equals(event.getName())) {
             event.getTable().addPool(LootPool.lootPool()
                     .name("dragonloot_dragon_upgrade_template")
                     .setRolls(ConstantValue.exactly(1.0F))

@@ -45,7 +45,7 @@ public class DragonTridentItemRenderer extends BlockEntityWithoutLevelRenderer {
                 this.model.renderType(TEXTURE),
                 false,
                 stack.hasFoil());
-        this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }
 }

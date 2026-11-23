@@ -11,7 +11,7 @@ import net.dragonloot.config.DragonLootConfig;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 final class DragonLootConfigScreen {
     private static final String TRANSLATION_PREFIX = "text.autoconfig.dragonloot.";
@@ -20,36 +20,36 @@ final class DragonLootConfigScreen {
     }
 
     static Screen create(Screen parent) {
-        ForgeConfigSpec config = DragonLootConfig.SPEC;
+        ModConfigSpec config = DragonLootConfig.SPEC;
         ConfigBuilder screen = ConfigBuilder.create()
                 .setParentScreen(parent)
                 .setTitle(Component.translatable(TRANSLATION_PREFIX + "title"))
-                .setDefaultBackgroundTexture(new ResourceLocation("minecraft", "textures/block/stone.png"))
+                .setDefaultBackgroundTexture(ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/stone.png"))
                 .setSavingRunnable(config::save);
         ConfigCategory category = screen.getOrCreateCategory(Component.translatable(TRANSLATION_PREFIX + "category.general"));
         ConfigEntryBuilder entries = screen.entryBuilder();
 
         for (String key : config.getSpec().valueMap().keySet()) {
-            ForgeConfigSpec.ValueSpec spec = config.getSpec().get(key);
+            ModConfigSpec.ValueSpec spec = config.getSpec().get(key);
             Object value = config.getValues().get(key);
             Component label = Component.translatable(TRANSLATION_PREFIX + "option." + key);
 
-            if (value instanceof ForgeConfigSpec.IntValue number) {
+            if (value instanceof ModConfigSpec.IntValue number) {
                 int current = number.get();
-                ForgeConfigSpec.Range<Integer> range = spec.getRange();
+                ModConfigSpec.Range<Integer> range = spec.getRange();
                 var field = key.startsWith("dragon_armor_protection_")
                         ? entries.startIntSlider(label, current, range.getMin(), range.getMax())
                         : entries.startIntField(label, current).setMin(range.getMin()).setMax(range.getMax());
                 addEntry(category, field, number, current, spec);
-            } else if (value instanceof ForgeConfigSpec.DoubleValue number) {
+            } else if (value instanceof ModConfigSpec.DoubleValue number) {
                 double current = number.get();
-                ForgeConfigSpec.Range<Double> range = spec.getRange();
+                ModConfigSpec.Range<Double> range = spec.getRange();
                 var field = entries.startDoubleField(label, current)
                         .setMin(range.getMin()).setMax(range.getMax())
                         .setErrorSupplier(input -> Double.isFinite(input) ? Optional.empty()
                                 : Optional.of(Component.translatable("text.cloth-config.error.not_valid_number_double")));
                 addEntry(category, field, number, current, spec);
-            } else if (value instanceof ForgeConfigSpec.BooleanValue toggle) {
+            } else if (value instanceof ModConfigSpec.BooleanValue toggle) {
                 boolean current = toggle.get();
                 addEntry(category, entries.startBooleanToggle(label, current), toggle, current, spec);
             }
@@ -59,14 +59,14 @@ final class DragonLootConfigScreen {
     }
 
     private static <T> void addEntry(ConfigCategory category, AbstractFieldBuilder<T, ?, ?> field,
-            ForgeConfigSpec.ConfigValue<T> value, T initialValue, ForgeConfigSpec.ValueSpec spec) {
+            ModConfigSpec.ConfigValue<T> value, T initialValue, ModConfigSpec.ValueSpec spec) {
         field.setDefaultValue(value::getDefault);
         field.setSaveConsumer(newValue -> {
             if (!Objects.equals(initialValue, newValue)) {
                 value.set(newValue);
             }
         });
-        field.requireRestart(spec.needsWorldRestart());
+        field.requireRestart(spec.restartType() != ModConfigSpec.RestartType.NONE);
         category.addEntry(field.build());
     }
 }

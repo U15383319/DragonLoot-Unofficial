@@ -31,7 +31,7 @@ public class DragonTridentRenderer extends EntityRenderer<DragonTridentEntity> {
         poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90.0F));
         poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot()) + 90.0F));
         VertexConsumer consumer = ItemRenderer.getFoilBufferDirect(buffer, this.model.renderType(getTextureLocation(entity)), false, entity.isFoil());
-        this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
         super.render(entity, yaw, partialTick, poseStack, buffer, packedLight);
     }

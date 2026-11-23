@@ -1,60 +1,47 @@
 package net.dragonloot.item;
 
+import net.dragonloot.DragonLoot;
 import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModItems;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
-public enum DragonArmorMaterial implements ArmorMaterial {
-    INSTANCE;
+import java.util.List;
+import java.util.Map;
 
-    private static final int[] BASE_DURABILITY = new int[]{28, 32, 35, 26};
+public final class DragonArmorMaterial {
+    public static final DeferredRegister<ArmorMaterial> MATERIALS =
+            DeferredRegister.create(Registries.ARMOR_MATERIAL, DragonLoot.MOD_ID);
+    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> DRAGON = MATERIALS.register("dragon",
+            () -> new ArmorMaterial(Map.of(
+                    ArmorItem.Type.HELMET, DragonLootConfig.helmetProtection(),
+                    ArmorItem.Type.CHESTPLATE, DragonLootConfig.chestProtection(),
+                    ArmorItem.Type.LEGGINGS, DragonLootConfig.leggingsProtection(),
+                    ArmorItem.Type.BOOTS, DragonLootConfig.bootsProtection(),
+                    ArmorItem.Type.BODY, 18),
+                    DragonLootConfig.armorEnchantability(),
+                    SoundEvents.ARMOR_EQUIP_CHAIN,
+                    () -> Ingredient.of(ModItems.DRAGON_SCALE.get()),
+                    List.of(new ArmorMaterial.Layer(DragonLoot.id("dragon"))),
+                    DragonLootConfig.armorToughness(),
+                    DragonLootConfig.armorKnockbackResistance() / 10.0F));
 
-    @Override
-    public int getDurabilityForType(ArmorItem.Type type) {
-        return BASE_DURABILITY[type.getSlot().getIndex()] * DragonLootConfig.armorDurabilityMultiplier();
+    private DragonArmorMaterial() {
     }
 
-    @Override
-    public int getDefenseForType(ArmorItem.Type type) {
-        return switch (type) {
-            case HELMET -> DragonLootConfig.helmetProtection();
-            case CHESTPLATE -> DragonLootConfig.chestProtection();
-            case LEGGINGS -> DragonLootConfig.leggingsProtection();
-            case BOOTS -> DragonLootConfig.bootsProtection();
+    public static int durability(ArmorItem.Type type) {
+        int base = switch (type) {
+            case BOOTS -> 28;
+            case LEGGINGS -> 32;
+            case CHESTPLATE -> 35;
+            case HELMET -> 26;
+            case BODY -> throw new IllegalArgumentException("Horse armor is not damageable");
         };
-    }
-
-    @Override
-    public int getEnchantmentValue() {
-        return DragonLootConfig.armorEnchantability();
-    }
-
-    @Override
-    public SoundEvent getEquipSound() {
-        return SoundEvents.ARMOR_EQUIP_CHAIN;
-    }
-
-    @Override
-    public Ingredient getRepairIngredient() {
-        return Ingredient.of(ModItems.DRAGON_SCALE.get());
-    }
-
-    @Override
-    public String getName() {
-        return "dragon";
-    }
-
-    @Override
-    public float getToughness() {
-        return DragonLootConfig.armorToughness();
-    }
-
-    @Override
-    public float getKnockbackResistance() {
-        return DragonLootConfig.armorKnockbackResistance();
+        return base * DragonLootConfig.armorDurabilityMultiplier();
     }
 }

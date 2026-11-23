@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "base": {
+    "item": "minecraft:bow"
+  },
+  "addition": {
+    "item": "dragonloot:dragon_scale"
+  },
+  "result": {
+    "id": "dragonloot:dragon_bow"
+  },
+  "template": {
+    "item": "dragonloot:dragon_upgrade_smithing_template"
+  }
+}

@@ -2,16 +2,17 @@ package net.dragonloot.item;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Tier;
 
 public class DragonHoeItem extends HoeItem {
     public DragonHoeItem(Tier tier, int attackDamage, float attackSpeed, Properties properties) {
-        super(tier, attackDamage, attackSpeed, properties);
+        super(tier, properties.attributes(HoeItem.createAttributes(tier, attackDamage, attackSpeed)));
     }
 
     @Override
-    public boolean canBeHurtBy(DamageSource source) {
-        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(source);
+    public boolean canBeHurtBy(ItemStack stack, DamageSource source) {
+        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(stack, source);
     }
 }

@@ -1,15 +1,13 @@
 package net.dragonloot.item;
 
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 
 public class DragonCrossbowItem extends CrossbowItem {
     public DragonCrossbowItem(Properties properties) {
@@ -17,25 +15,16 @@ public class DragonCrossbowItem extends CrossbowItem {
     }
 
     @Override
-    public boolean useOnRelease(ItemStack stack) {
-        return true;
-    }
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        if (CrossbowItem.isCharged(stack)) {
-            float power = CrossbowItem.containsChargedProjectile(stack, Items.FIREWORK_ROCKET) ? 1.6F : 3.15F;
-            CrossbowItem.performShooting(level, player, hand, stack, power, 1.0F);
-            CrossbowItem.setCharged(stack, false);
-            player.awardStat(Stats.ITEM_USED.get(this));
-            return InteractionResultHolder.consume(stack);
+    protected void shootProjectile(LivingEntity shooter, Projectile projectile, int index, float velocity,
+                                   float inaccuracy, float angle, @Nullable LivingEntity target) {
+        if (projectile instanceof AbstractArrow arrow) {
+            arrow.setBaseDamage(arrow.getBaseDamage() * 1.25D + 1.0D);
         }
-        return super.use(level, player, hand);
+        super.shootProjectile(shooter, projectile, index, velocity, inaccuracy, angle, target);
     }
 
     @Override
-    public boolean canBeHurtBy(DamageSource source) {
-        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(source);
+    public boolean canBeHurtBy(ItemStack stack, DamageSource source) {
+        return !source.is(DamageTypeTags.IS_EXPLOSION) && super.canBeHurtBy(stack, source);
     }
 }

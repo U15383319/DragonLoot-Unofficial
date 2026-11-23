@@ -2,7 +2,10 @@ package net.dragonloot.item;
 
 import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModItems;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Tier;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public enum DragonToolMaterial implements Tier {
@@ -24,8 +27,8 @@ public enum DragonToolMaterial implements Tier {
     }
 
     @Override
-    public int getLevel() {
-        return 5;
+    public TagKey<Block> getIncorrectBlocksForDrops() {
+        return BlockTags.INCORRECT_FOR_NETHERITE_TOOL;
     }
 
     @Override

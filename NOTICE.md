@@ -1,12 +1,12 @@
 # DragonLoot Onyx notices
 
-Unofficial Forge port of the Fabric mod [DragonLoot](https://github.com/GitPois1x/DragonLoot), modified on 2026-11-22.
+Unofficial Forge and NeoForge port of the Fabric mod [DragonLoot](https://github.com/GitPois1x/DragonLoot), modified on 2026-11-23.
 
-Original DragonLoot code and assets are credited to Pois1x, Globox_Z, and the [upstream contributors](https://github.com/GitPois1x/DragonLoot/graphs/contributors). The Forge adaptation is credited to Gvxwsur. Attribution in the upstream models is preserved.
+Original DragonLoot code and assets are credited to Pois1x, Globox_Z, and the [upstream contributors](https://github.com/GitPois1x/DragonLoot/graphs/contributors). The Forge and NeoForge adaptations are credited to Gvxwsur. Attribution in the upstream models is preserved.
 
 DragonLoot Onyx uses the same license as upstream, the GNU General Public License, version 3. See the included `LICENSE` for the license and warranty terms.
 
-[Source repository](https://github.com/U15383319/DragonLoot-Unofficial/tree/1.20.1-forge)
+[Source repository](https://github.com/U15383319/DragonLoot-Unofficial/tree/master)
 
 ## Minecraft artwork
 

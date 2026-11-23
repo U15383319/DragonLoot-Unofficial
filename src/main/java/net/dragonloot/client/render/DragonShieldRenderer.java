@@ -47,8 +47,8 @@ public class DragonShieldRenderer extends BlockEntityWithoutLevelRenderer {
                 this.shieldModel.renderType(DRAGON_SHIELD_MATERIAL.atlasLocation()),
                 true,
                 stack.hasFoil()));
-        this.shieldModel.handle().render(poseStack, consumer, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
-        this.shieldModel.plate().render(poseStack, consumer, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        this.shieldModel.handle().render(poseStack, consumer, packedLight, packedOverlay);
+        this.shieldModel.plate().render(poseStack, consumer, packedLight, packedOverlay);
         poseStack.popPose();
     }
 }
