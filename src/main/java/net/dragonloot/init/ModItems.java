@@ -48,6 +48,8 @@ public final class ModItems {
             () -> new DragonHoeItem(DragonToolMaterial.INSTANCE, -4, -2.0F, new Item.Properties().fireResistant()));
     public static final DeferredHolder<Item, Item> DRAGON_SWORD = ITEMS.register("dragon_sword",
             () -> new DragonSwordItem(DragonToolMaterial.INSTANCE, 3, -2.4F, new Item.Properties().fireResistant()));
+    public static final DeferredHolder<Item, Item> DRAGON_MACE = ITEMS.register("dragon_mace",
+            () -> new DragonMaceItem(new Item.Properties().durability(DragonToolMaterial.INSTANCE.getUses()).fireResistant()));
     public static final DeferredHolder<Item, Item> DRAGON_BOW = ITEMS.register("dragon_bow",
             () -> new DragonBowItem(new Item.Properties().durability(DragonToolMaterial.INSTANCE.getUses()).fireResistant()));
     public static final DeferredHolder<Item, Item> DRAGON_CROSSBOW = ITEMS.register("dragon_crossbow",

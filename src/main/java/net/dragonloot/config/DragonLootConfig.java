@@ -24,6 +24,8 @@ public final class DragonLootConfig {
     private static final int DEFAULT_DRAGON_ANVIL_MAX_COST = 30;
     private static final double DEFAULT_DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER = 0.4D;
     private static final double DEFAULT_DRAGON_SWORD_ENTITY_REACH_BONUS = 0.5D;
+    private static final double DEFAULT_DRAGON_MACE_KNOCKBACK_RESISTANCE = 0.10D;
+    private static final int DEFAULT_DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS = 20;
 
     private static final ModConfigSpec.IntValue SCALE_MINIMUM_DROP_AMOUNT;
     private static final ModConfigSpec.IntValue ADDITIONAL_SCALES_PER_PLAYER;
@@ -44,6 +46,8 @@ public final class DragonLootConfig {
     private static final ModConfigSpec.IntValue DRAGON_ANVIL_MAX_COST;
     private static final ModConfigSpec.DoubleValue DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER;
     private static final ModConfigSpec.DoubleValue DRAGON_SWORD_ENTITY_REACH_BONUS;
+    private static final ModConfigSpec.DoubleValue DRAGON_MACE_KNOCKBACK_RESISTANCE;
+    private static final ModConfigSpec.IntValue DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -76,6 +80,12 @@ public final class DragonLootConfig {
         DRAGON_SWORD_ENTITY_REACH_BONUS = builder
                 .comment("Additional entity attack reach granted while the dragon sword is in the main hand.")
                 .defineInRange("dragon_sword_entity_reach_bonus", 0.5D, 0.0D, 16.0D);
+        DRAGON_MACE_KNOCKBACK_RESISTANCE = builder.gameRestart()
+                .comment("Additional knockback resistance granted by the dragon mace in the main hand. 0.10 = 10%.")
+                .defineInRange("dragon_mace_knockback_resistance", DEFAULT_DRAGON_MACE_KNOCKBACK_RESISTANCE, 0.0D, 1.0D);
+        DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS = builder
+                .comment("Extra cooldown ticks added when the dragon axe disables a shield. 20 ticks = 1 second.")
+                .defineInRange("dragon_axe_shield_disable_bonus_ticks", DEFAULT_DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS, 0, 1200);
         SPEC = builder.build();
     }
 
@@ -101,6 +111,8 @@ public final class DragonLootConfig {
     public static int dragonAnvilMaxCost() { return getOrDefault(DRAGON_ANVIL_MAX_COST, DEFAULT_DRAGON_ANVIL_MAX_COST); }
     public static double dragonShieldDisableCooldownMultiplier() { return getOrDefault(DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER, DEFAULT_DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER); }
     public static double dragonSwordEntityReachBonus() { return getOrDefault(DRAGON_SWORD_ENTITY_REACH_BONUS, DEFAULT_DRAGON_SWORD_ENTITY_REACH_BONUS); }
+    public static double dragonMaceKnockbackResistance() { return getOrDefault(DRAGON_MACE_KNOCKBACK_RESISTANCE, DEFAULT_DRAGON_MACE_KNOCKBACK_RESISTANCE); }
+    public static int dragonAxeShieldDisableBonusTicks() { return getOrDefault(DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS, DEFAULT_DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS); }
 
     private static <T> T getOrDefault(ModConfigSpec.ConfigValue<T> value, T fallback) {
         try {

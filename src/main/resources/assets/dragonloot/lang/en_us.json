@@ -5,7 +5,7 @@
   "upgrade.dragonloot.dragon_upgrade": "Dragon Upgrade",
   "item.dragonloot.smithing_template.dragon_upgrade.applies_to": "Dragon Equipment Upgrades",
   "item.dragonloot.smithing_template.dragon_upgrade.ingredients": "Dragon Scale or Elytra",
-  "item.dragonloot.smithing_template.dragon_upgrade.base_slot_description": "Add netherite equipment, a bow, crossbow, trident, shield, diamond horse armor, an anvil, or a dragon chestplate",
+  "item.dragonloot.smithing_template.dragon_upgrade.base_slot_description": "Add netherite equipment, a bow, crossbow, trident, mace, shield, diamond horse armor, an anvil, or a dragon chestplate",
   "item.dragonloot.smithing_template.dragon_upgrade.additions_slot_description": "Add a Dragon Scale, or an Elytra for the winged chestplate",
   
   "item.dragonloot.dragon_helmet": "Dragon Scale Helmet",
@@ -19,6 +19,7 @@
   "item.dragonloot.dragon_shovel": "Dragon Shovel",
   "item.dragonloot.dragon_hoe": "Dragon Hoe",
   "item.dragonloot.dragon_sword": "Dragon Sword",
+  "item.dragonloot.dragon_mace": "Dragon Mace",
   "item.dragonloot.dragon_bow": "Dragon Bow",
   "item.dragonloot.dragon_crossbow": "Dragon Crossbow",
   "item.dragonloot.dragon_shield": "Dragon Shield",
@@ -50,6 +51,8 @@
   "text.autoconfig.dragonloot.option.dragon_tool_enchantability": "Dragon Tool Enchantability",
   "text.autoconfig.dragonloot.option.dragon_shield_disable_cooldown_multiplier": "Dragon Shield Disable Cooldown Multiplier",
   "text.autoconfig.dragonloot.option.dragon_sword_entity_reach_bonus": "Dragon Sword Entity Reach Bonus",
+  "text.autoconfig.dragonloot.option.dragon_mace_knockback_resistance": "Dragon Mace Knockback Resistance Bonus",
+  "text.autoconfig.dragonloot.option.dragon_axe_shield_disable_bonus_ticks": "Dragon Axe Extra Shield Cooldown (Ticks)",
 
   "dragonloot.advancements.dragon_armor.title": "From the scales of the beast",
   "dragonloot.advancements.dragon_armor.description": "Get a full suit of Dragon armor"

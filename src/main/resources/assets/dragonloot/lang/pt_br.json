@@ -13,6 +13,7 @@
     "item.dragonloot.dragon_shovel": "dragonShovel",
     "item.dragonloot.dragon_hoe": "Estarragão como",
     "item.dragonloot.dragon_sword": "dragonSword",
+    "item.dragonloot.dragon_mace": "Maça de Dragão",
     "item.dragonloot.dragon_bow": "Dragon Bow",
     "item.dragonloot.dragon_crossbow": "dragonCrossbow",
   
@@ -39,6 +40,8 @@
     "text.autoconfig.dragonloot.option.dragon_armor_toughness": "Dragon Armour Toguness",
     "text.autoconfig.dragonloot.option.dragon_armor_knockback_resistance": "Resistência de Knockback de Armadura de Dragão",
     "text.autoconfig.dragonloot.option.dragon_armor_enchantability": "Encantabilidade da Armadura de Dragão",
+    "text.autoconfig.dragonloot.option.dragon_mace_knockback_resistance": "Bônus de resistência a repulsão da maça de dragão",
+    "text.autoconfig.dragonloot.option.dragon_axe_shield_disable_bonus_ticks": "Tempo adicional de recarga do escudo pelo machado de dragão (ticks)",
   
     "dragonloot.advancements.dragon_armor.title": "Das escalas da besta",
     "dragonloot.advancements.dragon_armor.description": "Obtenha um terno completo de armadura de dragão"

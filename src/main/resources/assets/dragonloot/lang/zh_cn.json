@@ -5,7 +5,7 @@
   "upgrade.dragonloot.dragon_upgrade": "龙升级",
   "item.dragonloot.smithing_template.dragon_upgrade.applies_to": "龙系装备升级",
   "item.dragonloot.smithing_template.dragon_upgrade.ingredients": "龙鳞或鞘翅",
-  "item.dragonloot.smithing_template.dragon_upgrade.base_slot_description": "放入下界合金装备、弓、弩、三叉戟、盾牌、钻石马铠、铁砧或龙鳞胸甲",
+  "item.dragonloot.smithing_template.dragon_upgrade.base_slot_description": "放入下界合金装备、弓、弩、三叉戟、重锤、盾牌、钻石马铠、铁砧或龙鳞胸甲",
   "item.dragonloot.smithing_template.dragon_upgrade.additions_slot_description": "放入龙鳞，或用鞘翅升级羽翼龙鳞胸甲",
   
   "item.dragonloot.dragon_helmet": "龙鳞头盔",
@@ -19,6 +19,7 @@
   "item.dragonloot.dragon_shovel": "龙铲",
   "item.dragonloot.dragon_hoe": "龙锄",
   "item.dragonloot.dragon_sword": "龙剑",
+  "item.dragonloot.dragon_mace": "龙重锤",
   "item.dragonloot.dragon_bow": "龙弓",
   "item.dragonloot.dragon_crossbow": "龙弩",
   "item.dragonloot.dragon_shield": "龙盾",
@@ -50,6 +51,8 @@
   "text.autoconfig.dragonloot.option.dragon_tool_enchantability": "龙工具附魔能力",
   "text.autoconfig.dragonloot.option.dragon_shield_disable_cooldown_multiplier": "龙盾被禁用时的冷却时长倍率",
   "text.autoconfig.dragonloot.option.dragon_sword_entity_reach_bonus": "龙剑实体攻击距离加成",
+  "text.autoconfig.dragonloot.option.dragon_mace_knockback_resistance": "龙重锤击退抗性加成",
+  "text.autoconfig.dragonloot.option.dragon_axe_shield_disable_bonus_ticks": "龙斧额外破盾冷却（刻）",
 
   "dragonloot.advancements.dragon_armor.title": "龙鳞铸造",
   "dragonloot.advancements.dragon_armor.description": "打造全套龙鳞装甲"

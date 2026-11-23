@@ -36,3 +36,6 @@ side="CLIENT"
 
 [features.${mod_id}]
 javaVersion="[21,)"
+
+[[mixins]]
+config="dragonloot.mixins.json"

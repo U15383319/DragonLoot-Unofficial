@@ -13,6 +13,7 @@
   "item.dragonloot.dragon_shovel": "드래곤 삽",
   "item.dragonloot.dragon_hoe": "드래곤 괭이",
   "item.dragonloot.dragon_sword": "드래곤 검",
+  "item.dragonloot.dragon_mace": "드래곤 철퇴",
   "item.dragonloot.dragon_bow": "드래곤 활",
   "item.dragonloot.dragon_crossbow": "드래곤 석궁",
 
@@ -40,6 +41,8 @@
   "text.autoconfig.dragonloot.option.dragon_armor_knockback_resistance": "드래곤 방어구 밀치기 저항",
   "text.autoconfig.dragonloot.option.dragon_armor_enchantability": "드래곤 방어구 마법 부여",
   "text.autoconfig.dragonloot.option.dragon_tool_enchantability": "드래곤 도구 마법 부여",
+  "text.autoconfig.dragonloot.option.dragon_mace_knockback_resistance": "드래곤 철퇴 밀치기 저항 보너스",
+  "text.autoconfig.dragonloot.option.dragon_axe_shield_disable_bonus_ticks": "드래곤 도끼의 추가 방패 재사용 대기 시간 (틱)",
 
   "dragonloot.advancements.dragon_armor.title": "괴수의 비늘을 이용해",
   "dragonloot.advancements.dragon_armor.description": "드래곤 방어구 모든 세트를 획득하세요."

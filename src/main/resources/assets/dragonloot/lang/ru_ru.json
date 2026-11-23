@@ -13,6 +13,7 @@
   "item.dragonloot.dragon_shovel": "Драконья лопата",
   "item.dragonloot.dragon_hoe": "Драконья мотыга",
   "item.dragonloot.dragon_sword": "Драконий меч",
+  "item.dragonloot.dragon_mace": "Драконья булава",
   "item.dragonloot.dragon_bow": "Драконий лук",
   "item.dragonloot.dragon_crossbow": "Драконий арбалет",
 
@@ -40,6 +41,8 @@
   "text.autoconfig.dragonloot.option.dragon_armor_knockback_resistance": "Сопротивление отбрасыванию драконьей брони",
   "text.autoconfig.dragonloot.option.dragon_armor_enchantability": "Зачаровываемость драконьей брони",
   "text.autoconfig.dragonloot.option.dragon_tool_enchantability": "Зачаровываемость драконьих инструментов",
+  "text.autoconfig.dragonloot.option.dragon_mace_knockback_resistance": "Дополнительное сопротивление отбрасыванию с драконьей булавой",
+  "text.autoconfig.dragonloot.option.dragon_axe_shield_disable_bonus_ticks": "Дополнительное время блокировки щита драконьим топором (тики)",
 
   "dragonloot.advancements.dragon_armor.title": "Из чешуи зверя",
   "dragonloot.advancements.dragon_armor.description": "Соберите полный комплект драконьей брони."

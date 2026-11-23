@@ -30,6 +30,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.DRAGON_SHOVEL.get());
                         output.accept(ModItems.DRAGON_HOE.get());
                         output.accept(ModItems.DRAGON_SWORD.get());
+                        output.accept(ModItems.DRAGON_MACE.get());
                         output.accept(ModItems.DRAGON_BOW.get());
                         output.accept(ModItems.DRAGON_CROSSBOW.get());
                         output.accept(ModItems.DRAGON_TRIDENT.get());
