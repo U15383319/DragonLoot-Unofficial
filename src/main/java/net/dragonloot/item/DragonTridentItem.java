@@ -68,7 +68,7 @@ public class DragonTridentItem extends TridentItem {
         }
 
         int riptide = EnchantmentHelper.getRiptide(stack);
-        if (riptide > 0 && !player.isInWaterOrRain() && !player.isInLava()) {
+        if (riptide > 0 && !canSpin(player)) {
             return;
         }
 
@@ -113,11 +113,16 @@ public class DragonTridentItem extends TridentItem {
         if (stack.getDamageValue() >= stack.getMaxDamage() - 1) {
             return InteractionResultHolder.fail(stack);
         }
-        if (EnchantmentHelper.getRiptide(stack) > 0 && !player.isInWaterOrRain() && !player.isInLava()) {
+        if (EnchantmentHelper.getRiptide(stack) > 0 && !canSpin(player)) {
             return InteractionResultHolder.fail(stack);
         }
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
+    }
+
+    private static boolean canSpin(Player player) {
+        return player.isInWaterOrRain()
+                || player.isInFluidType((fluid, height) -> height > 0.0D && !fluid.isAir() && !fluid.isLighterThanAir());
     }
 
     @Override

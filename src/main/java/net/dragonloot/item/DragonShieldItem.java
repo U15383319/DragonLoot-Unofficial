@@ -9,8 +9,6 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import java.util.function.Consumer;
 
 public class DragonShieldItem extends ShieldItem {
-    public static final int FALLBACK_DISABLE_COOLDOWN_TICKS = 40;
-
     public DragonShieldItem(Properties properties) {
         super(properties);
     }
