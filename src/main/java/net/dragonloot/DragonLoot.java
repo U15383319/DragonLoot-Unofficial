@@ -15,11 +15,11 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.block.Blocks;
 import net.dragonloot.item.DragonCrossbowItem;
-import net.dragonloot.item.DragonShieldItem;
 import net.minecraft.util.Mth;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
@@ -45,15 +45,14 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.WeakHashMap;
 
 @Mod(DragonLoot.MOD_ID)
 public class DragonLoot {
     public static final String MOD_ID = "dragonloot";
-    private final Set<UUID> adjustedDragonShieldCooldowns = new HashSet<>();
+    private static final Map<Player, PendingShieldDisable> PENDING_DRAGON_AXE_DISABLES = new WeakHashMap<>();
+    private final Map<Player, Object> adjustedDragonShieldCooldowns = new WeakHashMap<>();
 
     public DragonLoot() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -130,50 +129,88 @@ public class DragonLoot {
         }
     }
 
-    @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || event.player.level.isClientSide) {
+    public static void trackDragonAxeShieldDisable(Player defender, ItemStack blockingStack) {
+        int bonus = DragonLootConfig.dragonAxeShieldDisableBonusTicks();
+        if (bonus == 0 || defender.level.isClientSide || blockingStack.isEmpty()) {
             return;
         }
 
-        UUID playerId = event.player.getUUID();
-        if (!event.player.getCooldowns().isOnCooldown(ModItems.DRAGON_SHIELD.get())) {
-            this.adjustedDragonShieldCooldowns.remove(playerId);
-            return;
-        }
-
-        if (!this.adjustedDragonShieldCooldowns.contains(playerId)
-                && event.player.getCooldowns().getCooldownPercent(ModItems.DRAGON_SHIELD.get(), 0.0F) > 0.75F) {
-            event.player.getCooldowns().addCooldown(ModItems.DRAGON_SHIELD.get(), this.getReducedDragonShieldCooldownTicks(event.player.getCooldowns()));
-            this.adjustedDragonShieldCooldowns.add(playerId);
-        }
+        // Forge evaluates canDisableShield before it applies the shield cooldown.
+        Item shield = blockingStack.getItem();
+        Object previous = getCooldownEntries(defender.getCooldowns()).get(shield);
+        PENDING_DRAGON_AXE_DISABLES.put(defender, new PendingShieldDisable(shield, previous, bonus));
     }
 
-    @SuppressWarnings("unchecked")
-    private int getReducedDragonShieldCooldownTicks(ItemCooldowns itemCooldowns) {
-        try {
-            Map<Item, ?> cooldowns = ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, itemCooldowns, "f_41515_");
-            Integer tickCount = ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, itemCooldowns, "f_41516_");
-            Object cooldown = cooldowns == null ? null : cooldowns.get(ModItems.DRAGON_SHIELD.get());
-            if (cooldown == null || tickCount == null) {
-                return DragonShieldItem.FALLBACK_DISABLE_COOLDOWN_TICKS;
-            }
-
-            int startTime = getCooldownInstanceField(cooldown, "f_41533_");
-            int endTime = getCooldownInstanceField(cooldown, "f_41534_");
-            int originalDuration = Math.max(1, endTime - startTime);
-            int remainingDuration = Math.max(1, endTime - tickCount);
-            int reducedDuration = Math.max(1, Mth.ceil(originalDuration * DragonLootConfig.dragonShieldDisableCooldownMultiplier()));
-            return Math.min(remainingDuration, reducedDuration);
-        } catch (RuntimeException | LinkageError ignored) {
-            return DragonShieldItem.FALLBACK_DISABLE_COOLDOWN_TICKS;
+    @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        Player player = event.player;
+        if (event.phase != TickEvent.Phase.END || player.level.isClientSide) {
+            return;
         }
+
+        PendingShieldDisable pending = PENDING_DRAGON_AXE_DISABLES.remove(player);
+        ItemCooldowns cooldowns = player.getCooldowns();
+        Item dragonShield = ModItems.DRAGON_SHIELD.get();
+        if (pending == null && !cooldowns.isOnCooldown(dragonShield)) {
+            adjustedDragonShieldCooldowns.remove(player);
+            return;
+        }
+
+        Map<Item, ?> entries = getCooldownEntries(cooldowns);
+        int tickCount = ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, cooldowns, "f_41516_");
+        if (pending != null && pending.shield != dragonShield) {
+            Object active = entries.get(pending.shield);
+            if (pending.hasNewCooldown(active)) {
+                int remaining = getCooldownInstanceField(active, "f_41534_") - tickCount;
+                cooldowns.addCooldown(pending.shield, remaining + pending.bonus);
+            }
+        }
+
+        Object active = entries.get(dragonShield);
+        if (active == null) {
+            adjustedDragonShieldCooldowns.remove(player);
+            return;
+        }
+        if (active == adjustedDragonShieldCooldowns.get(player)) {
+            return;
+        }
+
+        int bonus = pending != null && pending.shield == dragonShield && pending.hasNewCooldown(active) ? pending.bonus : 0;
+        int startTime = getCooldownInstanceField(active, "f_41533_");
+        int endTime = getCooldownInstanceField(active, "f_41534_");
+        int remaining = endTime - tickCount;
+        int fullDuration = endTime - startTime + bonus;
+        int reduced = Math.max(1, Mth.ceil(fullDuration * DragonLootConfig.dragonShieldDisableCooldownMultiplier()));
+        int duration = Math.min(remaining + bonus, reduced);
+        if (duration != remaining) {
+            cooldowns.addCooldown(dragonShield, duration);
+        }
+        adjustedDragonShieldCooldowns.put(player, entries.get(dragonShield));
+    }
+
+    private static Map<Item, ?> getCooldownEntries(ItemCooldowns cooldowns) {
+        return ObfuscationReflectionHelper.getPrivateValue(ItemCooldowns.class, cooldowns, "f_41515_");
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private static int getCooldownInstanceField(Object cooldown, String fieldName) {
-        Integer value = (Integer) ObfuscationReflectionHelper.getPrivateValue((Class) cooldown.getClass(), cooldown, fieldName);
-        return value == null ? 0 : value;
+        return (Integer) ObfuscationReflectionHelper.getPrivateValue((Class) cooldown.getClass(), cooldown, fieldName);
+    }
+
+    private static final class PendingShieldDisable {
+        private final Item shield;
+        private final Object previous;
+        private final int bonus;
+
+        private PendingShieldDisable(Item shield, Object previous, int bonus) {
+            this.shield = shield;
+            this.previous = previous;
+            this.bonus = bonus;
+        }
+
+        private boolean hasNewCooldown(Object active) {
+            return active != null && active != previous;
+        }
     }
 
     @SubscribeEvent

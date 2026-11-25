@@ -50,6 +50,7 @@
   "text.autoconfig.dragonloot.option.dragon_tool_enchantability": "Dragon Tool Enchantability",
   "text.autoconfig.dragonloot.option.dragon_shield_disable_cooldown_multiplier": "Dragon Shield Disable Cooldown Multiplier",
   "text.autoconfig.dragonloot.option.dragon_sword_entity_reach_bonus": "Dragon Sword Entity Reach Bonus",
+  "text.autoconfig.dragonloot.option.dragon_axe_shield_disable_bonus_ticks": "Dragon Axe Extra Shield Cooldown (Ticks)",
 
   "dragonloot.advancements.dragon_armor.title": "From the scales of the beast",
   "dragonloot.advancements.dragon_armor.description": "Get a full suit of Dragon armor"
