@@ -6,7 +6,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.dragonloot.DragonLoot;
 import net.dragonloot.item.*;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -23,7 +22,7 @@ public final class ModItems {
     public static final DeferredHolder<Item, Item> DRAGON_UPGRADE_SMITHING_TEMPLATE = ITEMS.register("dragon_upgrade_smithing_template",
             ModItems::createDragonUpgradeTemplate);
     public static final DeferredHolder<Item, Item> DRAGON_ANVIL = ITEMS.register("dragon_anvil",
-            () -> new BlockItem(ModBlocks.DRAGON_ANVIL.get(), new Item.Properties()));
+            () -> new DragonAnvilItem(ModBlocks.DRAGON_ANVIL.get(), new Item.Properties()));
     public static final DeferredHolder<Item, Item> DRAGON_HORSE_ARMOR = ITEMS.register("dragon_horse_armor",
             () -> new DragonHorseArmorItem(new Item.Properties().stacksTo(1).fireResistant()));
 

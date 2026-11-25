@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "net.dragonloot.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["PlayerMixin"],
+  "mixins": ["AnvilBlockMixin", "ItemStackMixin", "PlayerMixin"],
   "injectors": {
     "defaultRequire": 1
   }
