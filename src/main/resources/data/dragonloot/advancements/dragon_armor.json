@@ -23,6 +23,11 @@
         "dragon_armor": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
+                "slots": {
+                    "occupied": {
+                        "min": 4
+                    }
+                },
                 "items": [
                     {
                         "items": [

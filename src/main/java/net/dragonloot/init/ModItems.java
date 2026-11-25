@@ -78,7 +78,7 @@ public final class ModItems {
                         new ResourceLocation("item/empty_slot_hoe"),
                         new ResourceLocation("item/empty_slot_shovel")
                 ),
-                List.of(DragonLoot.id("item/dragon_scale"))
+                List.of(DragonLoot.id("item/empty_slot_dragon_scale"))
         );
     }
 }
