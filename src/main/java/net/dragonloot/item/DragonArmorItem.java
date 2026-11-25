@@ -57,12 +57,16 @@ public class DragonArmorItem extends ArmorItem {
     @Override
     public boolean elytraFlightTick(ItemStack stack, LivingEntity entity, int flightTicks) {
         if (winged && flightTicks % 20 == 0 && stack.getDamageValue() >= stack.getMaxDamage() - 1) {
-            ItemStack brokenElytra = new ItemStack(Items.ELYTRA);
-            brokenElytra.setDamageValue(Items.ELYTRA.getMaxDamage(brokenElytra));
-            entity.setItemSlot(EquipmentSlot.CHEST, brokenElytra);
+            recoverBrokenElytra(entity);
             entity.playSound(SoundEvents.ITEM_BREAK, 0.8F, 0.8F + entity.getRandom().nextFloat() * 0.4F);
         }
         return winged;
+    }
+
+    public static void recoverBrokenElytra(LivingEntity entity) {
+        ItemStack brokenElytra = new ItemStack(Items.ELYTRA);
+        brokenElytra.setDamageValue(Items.ELYTRA.getMaxDamage(brokenElytra));
+        entity.setItemSlot(EquipmentSlot.CHEST, brokenElytra);
     }
 
     @Override
