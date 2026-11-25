@@ -282,7 +282,7 @@ tasks.matching { it.name == 'runServer' }.configureEach {
         doLast {
             def log = project.file("run/${minecraft_version}-verification/logs/latest.log")
             if (!log.exists() || log.lastModified() < portVerificationStartedAt ||
-                    !log.getText('UTF-8').contains('PORT_BEHAVIOR_VERIFICATION_PASSED: 7 tests')) {
+                    !log.getText('UTF-8').contains('PORT_BEHAVIOR_VERIFICATION_PASSED: 8 tests')) {
                 throw new GradleException('Dedicated server port verification did not finish successfully; inspect its latest.log.')
             }
         }

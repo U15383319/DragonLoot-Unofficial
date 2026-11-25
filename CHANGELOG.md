@@ -6,6 +6,7 @@
 - Use Riptide with the dragon trident in modded liquids.
 - Update the dragon shield and Dragon Upgrade Smithing Template textures.
 - Duplicate the upgrade template with seven popped chorus fruit and an obsidian block.
+- Require all four dragon armor pieces for the armor advancement and a dragon scale for recipe unlocks.
 
 ## 1.0.0
 

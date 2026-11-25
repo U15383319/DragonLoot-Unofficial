@@ -6,6 +6,7 @@ import net.dragonloot.init.ModItems;
 import net.dragonloot.init.ModRecipes;
 import net.dragonloot.menu.DragonSmithingMenu;
 import net.dragonloot.recipe.DragonSmithingRecipe;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.util.math.BlockPos;
 import net.dragonloot.init.ModAttributes;
 import net.dragonloot.item.DragonSwordReach;
@@ -36,6 +37,7 @@ import io.netty.buffer.Unpooled;
 public class DragonLootGameTests {
     public static void runAll(ServerWorld world) {
         TestTrackerHolder helper = new TestTrackerHolder(world);
+        advancementsRequireTheirItems(helper);
         upgradeRecipesAndNetwork(helper);
         smithingConsumesInputsAndPreservesEnchantments(helper);
         vanillaSmithingStillWorks(helper);
@@ -44,6 +46,34 @@ public class DragonLootGameTests {
         tridentThrownDamageIncludesDragonBonus(helper);
         templateDuplicationAndEndCityLoot(helper);
         org.apache.logging.log4j.LogManager.getLogger().info("PORT_BEHAVIOR_VERIFICATION_PASSED: {} tests", helper.passed);
+    }
+
+    private static void advancementsRequireTheirItems(TestTrackerHolder helper) {
+        PlayerEntity player = helper.makeMockPlayer();
+        var advancements = helper.getLevel().getServer().getAdvancements();
+        var armor = (InventoryChangeTrigger.Instance) advancements.getAdvancement(DragonLoot.id("dragon_armor"))
+                .getCriteria().get("dragon_armor").getTrigger();
+        var recipes = (InventoryChangeTrigger.Instance) advancements.getAdvancement(DragonLoot.id("dragon_recipes"))
+                .getCriteria().get("dragon_recipes").getTrigger();
+        int slots = player.inventory.getContainerSize();
+        ItemStack dirt = new ItemStack(Items.DIRT);
+        player.inventory.setItem(0, dirt);
+        check(helper, !armor.matches(player.inventory, dirt, 0, slots - 1, 1), "Dirt must not grant the dragon armor advancement");
+        check(helper, !recipes.matches(player.inventory, dirt, 0, slots - 1, 1), "Dirt must not unlock dragon recipes");
+
+        player.inventory.setItem(0, new ItemStack(ModItems.DRAGON_HELMET.get()));
+        player.inventory.setItem(1, new ItemStack(ModItems.DRAGON_CHESTPLATE.get()));
+        ItemStack leggings = new ItemStack(ModItems.DRAGON_LEGGINGS.get());
+        player.inventory.setItem(2, leggings);
+        check(helper, !armor.matches(player.inventory, leggings, 0, slots - 3, 3), "Three armor pieces must not complete the advancement");
+        ItemStack boots = new ItemStack(ModItems.DRAGON_BOOTS.get());
+        player.inventory.setItem(3, boots);
+        check(helper, armor.matches(player.inventory, boots, 0, slots - 4, 4), "All four dragon armor pieces must complete the advancement");
+
+        ItemStack scale = new ItemStack(ModItems.DRAGON_SCALE.get());
+        player.inventory.setItem(4, scale);
+        check(helper, recipes.matches(player.inventory, scale, 0, slots - 5, 5), "A dragon scale must unlock dragon recipes");
+        helper.succeed();
     }
 
     public static void upgradeRecipesAndNetwork(TestTrackerHolder helper) {
@@ -173,7 +203,7 @@ public class DragonLootGameTests {
         CraftingInventory grid = new CraftingInventory(new DragonSmithingMenu(0, player.inventory), 3, 3);
         for (int i = 0; i < 9; i++) {
             grid.setItem(i, new ItemStack(i == 1 ? ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()
-                    : i == 4 ? Items.PURPUR_BLOCK : Items.CHORUS_FRUIT));
+                    : i == 4 ? Items.OBSIDIAN : Items.POPPED_CHORUS_FRUIT));
         }
         var recipe = helper.getLevel().getRecipeManager().getRecipeFor(IRecipeType.CRAFTING, grid, helper.getLevel());
         check(helper, recipe.isPresent() && recipe.get().assemble(grid).getItem() == ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()
