@@ -5,8 +5,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.item.ShieldItem;
 
 public class DragonShieldItem extends ShieldItem {
-    public static final int FALLBACK_DISABLE_COOLDOWN_TICKS = 40;
-
     public DragonShieldItem(Properties properties) {
         super(properties.setISTER(() -> DragonShieldRenderer::new));
     }

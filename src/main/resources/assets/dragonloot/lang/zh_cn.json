@@ -51,6 +51,7 @@
   "text.autoconfig.dragonloot.option.dragon_tool_enchantability": "龙工具附魔能力",
   "text.autoconfig.dragonloot.option.dragon_shield_disable_cooldown_multiplier": "龙盾被禁用时的冷却时长倍率",
   "text.autoconfig.dragonloot.option.dragon_sword_entity_reach_bonus": "龙剑实体攻击距离加成",
+  "text.autoconfig.dragonloot.option.dragon_axe_shield_disable_bonus_ticks": "龙斧额外破盾冷却（刻）",
 
   "dragonloot.advancements.dragon_armor.title": "龙鳞铸造",
   "dragonloot.advancements.dragon_armor.description": "打造全套龙鳞装甲"

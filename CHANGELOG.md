@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1
+
+- Extend a successful dragon axe shield disable by 20 ticks by default. The dragon shield applies its cooldown multiplier to the combined duration.
+- Use Riptide with the dragon trident in modded liquids.
+- Update the dragon shield and Dragon Upgrade Smithing Template textures.
+- Duplicate the upgrade template with seven popped chorus fruit and an obsidian block.
+
 ## 1.0.0
 
 First release of DragonLoot Onyx for Minecraft 1.16.5 and Forge 36.x.

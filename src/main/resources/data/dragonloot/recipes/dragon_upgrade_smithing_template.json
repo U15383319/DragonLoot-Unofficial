@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "#": {
-      "item": "minecraft:chorus_fruit"
+      "item": "minecraft:popped_chorus_fruit"
     },
     "C": {
-      "item": "minecraft:purpur_block"
+      "item": "minecraft:obsidian"
     },
     "S": {
       "item": "dragonloot:dragon_upgrade_smithing_template"

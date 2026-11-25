@@ -5,6 +5,9 @@ import com.google.common.collect.Multimap;
 import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.client.render.DragonTridentItemRenderer;
 import net.dragonloot.entity.DragonTridentEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Hand;
@@ -23,6 +26,7 @@ import net.minecraft.item.TridentItem;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.world.World;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraftforge.fluids.FluidAttributes;
 
 public class DragonTridentItem extends TridentItem {
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
@@ -50,7 +54,7 @@ public class DragonTridentItem extends TridentItem {
         }
 
         int riptide = EnchantmentHelper.getRiptide(stack);
-        if (riptide > 0 && !player.isInWaterOrRain() && !player.isInLava()) {
+        if (riptide > 0 && !canSpin(player)) {
             return;
         }
 
@@ -95,11 +99,26 @@ public class DragonTridentItem extends TridentItem {
         if (stack.getDamageValue() >= stack.getMaxDamage() - 1) {
             return ActionResult.fail(stack);
         }
-        if (EnchantmentHelper.getRiptide(stack) > 0 && !player.isInWaterOrRain() && !player.isInLava()) {
+        if (EnchantmentHelper.getRiptide(stack) > 0 && !canSpin(player)) {
             return ActionResult.fail(stack);
         }
         player.startUsingItem(hand);
         return ActionResult.consume(stack);
+    }
+
+    private static boolean canSpin(PlayerEntity player) {
+        if (player.isInWaterOrRain() || player.isInLava()) {
+            return true;
+        }
+        AxisAlignedBB bounds = player.getBoundingBox().deflate(0.001D);
+        return BlockPos.betweenClosedStream(bounds).anyMatch(pos -> {
+            FluidState fluid = player.level.getFluidState(pos);
+            if (fluid.isEmpty() || pos.getY() + fluid.getHeight(player.level, pos) <= bounds.minY) {
+                return false;
+            }
+            FluidAttributes attributes = fluid.getType().getAttributes();
+            return !attributes.isGaseous(player.level, pos) && attributes.getDensity(player.level, pos) > 0;
+        });
     }
 
     @Override
