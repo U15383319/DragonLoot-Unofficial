@@ -93,7 +93,8 @@ public class DragonTridentItem extends TridentItem {
     }
 
     private static boolean canSpin(Player player) {
-        return player.isInWaterOrRain() || player.isInLava();
+        return player.isInWaterOrRain()
+                || player.isInFluidType((fluid, height) -> height > 0.0D && !fluid.isAir() && !fluid.isLighterThanAir());
     }
 
     @Override

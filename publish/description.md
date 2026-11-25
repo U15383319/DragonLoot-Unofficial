@@ -10,6 +10,7 @@ An unofficial NeoForge port of [DragonLoot](https://github.com/GitPois1x/DragonL
 - The dragon sword has 0.5 blocks of extra melee reach by default.
 - The dragon mace grants 10% knockback resistance in the main hand by default.
 - The dragon axe adds 1 second to the cooldown of shields it disables by default.
+- The dragon trident can use Riptide in water, lava, and other NeoForge liquids.
 - The dragon anvil charges 80% of the normal cost, up to 30 levels by default.
 - Adjust gear stats, combat bonuses, anvil costs, and dragon scale drops in `config/dragonloot-common.toml`. [Cloth Config 15 for NeoForge](https://www.curseforge.com/minecraft/mc-mods/cloth-config/files/5623420) adds an optional in-game settings screen.
 

@@ -11,6 +11,7 @@ Defeat the Ender Dragon for scales and use them to upgrade armor, tools, weapons
 - The dragon sword has a configurable melee reach bonus of 0.5 blocks by default.
 - The dragon mace grants 10% knockback resistance in the main hand by default and can be repaired with dragon scales.
 - The dragon axe adds 1 second to the cooldown of shields it disables by default.
+- The dragon trident can use Riptide in water, lava, and other NeoForge liquids.
 - This port uses vanilla gear for upgrades that can take Netherite Plus gear in the Fabric original.
 - The dragon anvil charges 80% of the normal cost, up to 30 levels by default. Both values are configurable.
 
