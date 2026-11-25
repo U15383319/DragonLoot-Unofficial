@@ -3,9 +3,6 @@ package net.dragonloot;
 import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.entity.DragonTridentEntity;
 import net.dragonloot.init.ModItems;
-import net.dragonloot.init.ModRecipes;
-import net.dragonloot.menu.DragonSmithingMenu;
-import net.dragonloot.recipe.DragonSmithingRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -17,10 +14,12 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.inventory.SmithingMenu;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
@@ -37,24 +36,31 @@ import io.netty.buffer.Unpooled;
 public class DragonLootGameTests {
     @GameTest(template = "empty")
     public static void upgradeRecipesAndNetwork(GameTestHelper helper) {
-        var recipes = helper.getLevel().getRecipeManager().getAllRecipesFor(ModRecipes.DRAGON_SMITHING.get());
-        check(helper, recipes.size() == 16, "All 16 dragon upgrade recipes must load");
-        for (DragonSmithingRecipe recipe : recipes) {
-            ItemStack base = recipe.getBase().getItems()[0].copy();
-            base.setHoverName(Component.literal("Port verification"));
-            var input = new SimpleContainer(recipe.getTemplate().getItems()[0].copy(), base,
-                    recipe.getAddition().getItems()[0].copy());
-            check(helper, recipe.matches(input, helper.getLevel()), "Upgrade recipe must match: " + recipe.getId());
-            ItemStack output = recipe.assemble(input);
-            check(helper, output.is(recipe.getResultItem().getItem()) && output.hasCustomHoverName(),
-                    "Upgrade must retain base NBT: " + recipe.getId());
+        var recipes = helper.getLevel().getRecipeManager().getAllRecipesFor(RecipeType.SMITHING).stream()
+                .filter(recipe -> recipe.getId().getNamespace().equals(DragonLoot.MOD_ID))
+                .collect(java.util.stream.Collectors.toList());
+        check(helper, recipes.size() == 16, "All 16 dragon upgrades must load as vanilla smithing recipes");
+        Player player = helper.makeMockPlayer();
+        SmithingMenu menu = new SmithingMenu(0, player.getInventory());
+        var serializer = RecipeSerializer.SMITHING;
+        for (var recipe : recipes) {
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             try {
-                var serializer = new DragonSmithingRecipe.Serializer();
                 serializer.toNetwork(buffer, recipe);
+                ItemStack base = Ingredient.fromNetwork(buffer).getItems()[0].copy();
+                ItemStack addition = Ingredient.fromNetwork(buffer).getItems()[0].copy();
+                base.setHoverName(Component.literal("Port verification"));
+                var input = new SimpleContainer(base, addition);
+                check(helper, recipe.matches(input, helper.getLevel()), "Upgrade recipe must match: " + recipe.getId());
+                menu.getSlot(0).set(base);
+                menu.getSlot(1).set(addition);
+                ItemStack output = menu.getSlot(2).getItem();
+                check(helper, output.getItem() == recipe.getResultItem().getItem() && output.hasCustomHoverName(),
+                        "The vanilla smithing menu must show the expected result and preserve item data: " + recipe.getId());
+                buffer.readerIndex(0);
                 var received = serializer.fromNetwork(recipe.getId(), buffer);
                 check(helper, received.matches(input, helper.getLevel())
-                        && ItemStack.isSameItemSameTags(received.assemble(input), output), "Recipe must sync to clients");
+                        && ItemStack.matches(received.assemble(input), output), "Recipe must sync to clients");
             } finally {
                 buffer.release();
             }
@@ -65,33 +71,30 @@ public class DragonLootGameTests {
     @GameTest(template = "empty")
     public static void smithingConsumesInputsAndPreservesEnchantments(GameTestHelper helper) {
         Player player = helper.makeMockPlayer();
-        DragonSmithingMenu menu = new DragonSmithingMenu(0, player.getInventory());
+        SmithingMenu menu = new SmithingMenu(0, player.getInventory());
         ItemStack base = new ItemStack(Items.NETHERITE_SWORD);
         base.enchant(Enchantments.SHARPNESS, 4);
-        menu.getSlot(0).set(new ItemStack(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get(), 2));
-        menu.getSlot(1).set(base);
-        menu.getSlot(2).set(new ItemStack(ModItems.DRAGON_SCALE.get(), 2));
-        check(helper, menu.getSlot(3).getItem().is(ModItems.DRAGON_SWORD.get()), "Template smithing must produce dragon sword");
-        ItemStack taken = menu.quickMoveStack(player, 3);
-        check(helper, taken.is(ModItems.DRAGON_SWORD.get()) && taken.isEnchanted(), "Shift-click must preserve enchantments");
-        check(helper, menu.getSlot(0).getItem().getCount() == 1 && menu.getSlot(1).getItem().isEmpty()
-                && menu.getSlot(2).getItem().getCount() == 1, "One template, base and scale must be consumed");
-        check(helper, menu.getSlot(3).getItem().isEmpty(), "Taking output must not duplicate it");
-        menu.getSlot(1).set(new ItemStack(Items.NETHERITE_SWORD));
-        menu.getSlot(0).set(ItemStack.EMPTY);
-        check(helper, menu.getSlot(3).getItem().isEmpty(), "Dragon upgrade must require a template");
+        menu.getSlot(0).set(base);
+        check(helper, menu.getSlot(2).getItem().isEmpty(), "Dragon smithing must require an upgrade material");
+        menu.getSlot(1).set(new ItemStack(ModItems.DRAGON_SCALE.get(), 2));
+        check(helper, menu.getSlot(2).getItem().getItem() == ModItems.DRAGON_SWORD.get(), "Smithing must produce the dragon sword");
+        ItemStack taken = menu.quickMoveStack(player, 2);
+        check(helper, taken.getItem() == ModItems.DRAGON_SWORD.get() && taken.isEnchanted(), "Shift-click must preserve enchantments");
+        check(helper, menu.getSlot(0).getItem().isEmpty() && menu.getSlot(1).getItem().getCount() == 1,
+                "Smithing must consume one base item and one dragon scale");
+        check(helper, menu.getSlot(2).getItem().isEmpty(), "Taking output must not duplicate it");
         helper.succeed();
     }
 
     @GameTest(template = "empty")
     public static void vanillaSmithingStillWorks(GameTestHelper helper) {
         Player player = helper.makeMockPlayer();
-        DragonSmithingMenu menu = new DragonSmithingMenu(0, player.getInventory());
-        menu.getSlot(1).set(new ItemStack(Items.DIAMOND_SWORD));
-        menu.getSlot(2).set(new ItemStack(Items.NETHERITE_INGOT));
-        check(helper, menu.getSlot(3).getItem().is(Items.NETHERITE_SWORD), "Original two-input netherite recipe must work");
-        check(helper, menu.quickMoveStack(player, 3).is(Items.NETHERITE_SWORD), "Vanilla output must be collectible");
-        check(helper, menu.getSlot(1).getItem().isEmpty() && menu.getSlot(2).getItem().isEmpty(), "Vanilla inputs must be consumed");
+        SmithingMenu menu = new SmithingMenu(0, player.getInventory());
+        menu.getSlot(0).set(new ItemStack(Items.DIAMOND_SWORD));
+        menu.getSlot(1).set(new ItemStack(Items.NETHERITE_INGOT));
+        check(helper, menu.getSlot(2).getItem().getItem() == Items.NETHERITE_SWORD, "Original two-input netherite recipe must work");
+        check(helper, menu.quickMoveStack(player, 2).getItem() == Items.NETHERITE_SWORD, "Vanilla output must be collectible");
+        check(helper, menu.getSlot(0).getItem().isEmpty() && menu.getSlot(1).getItem().isEmpty(), "Vanilla inputs must be consumed");
         helper.succeed();
     }
 
@@ -161,18 +164,9 @@ public class DragonLootGameTests {
     }
 
     @GameTest(template = "empty")
-    public static void templateDuplicationAndEndCityLoot(GameTestHelper helper) {
-        Player player = helper.makeMockPlayer();
-        CraftingContainer grid = new CraftingContainer(new DragonSmithingMenu(0, player.getInventory()), 3, 3);
-        for (int i = 0; i < 9; i++) {
-            grid.setItem(i, new ItemStack(i == 1 ? ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()
-                    : i == 4 ? Items.PURPUR_BLOCK : Items.AMETHYST_SHARD));
-        }
-        var recipe = helper.getLevel().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, grid, helper.getLevel());
-        check(helper, recipe.isPresent() && recipe.get().assemble(grid).is(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get())
-                && recipe.get().assemble(grid).getCount() == 2, "Template duplication recipe must return two templates");
+    public static void endCityLootHasNoDragonUpgradePool(GameTestHelper helper) {
         var loot = helper.getLevel().getServer().getLootTables().get(new ResourceLocation("minecraft", "chests/end_city_treasure"));
-        check(helper, loot.getPool("dragonloot_dragon_upgrade_template") != null, "End City chest loot must include the template pool");
+        check(helper, loot.getPool("dragonloot_dragon_upgrade_template") == null, "End City loot must use its vanilla pools");
         helper.succeed();
     }
 

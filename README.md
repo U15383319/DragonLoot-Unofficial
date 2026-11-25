@@ -6,7 +6,7 @@ Defeat the Ender Dragon for scales and use them to upgrade armor, tools, weapons
 
 ## Differences from the original
 
-- Dragon upgrades use a dedicated smithing template found in End City treasure chests. Duplicate it with seven popped chorus fruit, an obsidian block, and an existing template.
+- Use the vanilla smithing table to upgrade compatible gear with dragon scales and combine a dragon chestplate with an elytra.
 - The dragon shield has a configurable disable cooldown, set to 40% of the standard duration by default.
 - The dragon sword has a configurable melee reach bonus of 0.5 blocks by default.
 - The dragon axe adds 1 second to the cooldown of shields it disables by default.
