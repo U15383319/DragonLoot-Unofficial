@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.dragonloot.mixin",
+  "compatibilityLevel": "JAVA_11",
+  "refmap": "dragonloot.refmap.json",
+  "mixins": [
+    "AnvilBlockMixin",
+    "CrossbowItemMixin",
+    "ItemStackMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,7 +1,6 @@
 package net.dragonloot.block;
 
 import net.dragonloot.menu.DragonAnvilMenu;
-import net.dragonloot.init.ModBlocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -15,12 +14,6 @@ import javax.annotation.Nullable;
 public class DragonAnvilBlock extends AnvilBlock {
     public DragonAnvilBlock(Properties properties) {
         super(properties);
-    }
-
-    @Override
-    public void onLand(World level, BlockPos pos, BlockState fallingState, BlockState landedOn, net.minecraft.entity.item.FallingBlockEntity fallingBlock) {
-        level.setBlock(pos, ModBlocks.DRAGON_ANVIL.get().defaultBlockState().setValue(FACING, fallingState.getValue(FACING)), 3);
-        super.onLand(level, pos, fallingState, landedOn, fallingBlock);
     }
 
     @Override

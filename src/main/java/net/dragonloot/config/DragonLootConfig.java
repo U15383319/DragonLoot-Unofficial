@@ -1,8 +1,15 @@
 package net.dragonloot.config;
 
+import com.electronwill.nightconfig.core.io.ParsingException;
+import com.electronwill.nightconfig.toml.TomlParser;
+import java.io.IOException;
+import java.nio.file.Files;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.loading.FMLPaths;
+import org.apache.logging.log4j.LogManager;
 
 public final class DragonLootConfig {
+    public static final String FILE_NAME = "dragonloot-common.toml";
     public static final ForgeConfigSpec SPEC;
 
     private static final int DEFAULT_SCALE_MINIMUM_DROP_AMOUNT = 3;
@@ -73,6 +80,20 @@ public final class DragonLootConfig {
     }
 
     private DragonLootConfig() {
+    }
+
+    public static void loadBeforeRegistration() {
+        // Forge loads COMMON configs after registries, but item constructors already need these values.
+        var path = FMLPaths.CONFIGDIR.get().resolve(FILE_NAME);
+        if (!Files.isRegularFile(path)) {
+            return;
+        }
+
+        try (var reader = Files.newBufferedReader(path)) {
+            SPEC.setConfig(new TomlParser().parse(reader));
+        } catch (IOException | ParsingException error) {
+            LogManager.getLogger(DragonLootConfig.class).warn("Could not read startup values from {}", path, error);
+        }
     }
 
     public static int scaleMinimumDropAmount() { return getOrDefault(SCALE_MINIMUM_DROP_AMOUNT, DEFAULT_SCALE_MINIMUM_DROP_AMOUNT); }

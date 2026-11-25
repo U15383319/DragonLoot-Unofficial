@@ -3,7 +3,6 @@ package net.dragonloot.init;
 import net.dragonloot.DragonLoot;
 import net.dragonloot.item.*;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -15,7 +14,7 @@ public final class ModItems {
     public static final RegistryObject<Item> DRAGON_SCALE = ITEMS.register("dragon_scale",
             () -> new DragonScaleItem(properties().fireResistant()));
     public static final RegistryObject<Item> DRAGON_ANVIL = ITEMS.register("dragon_anvil",
-            () -> new BlockItem(ModBlocks.DRAGON_ANVIL.get(), properties()));
+            () -> new DragonAnvilItem(ModBlocks.DRAGON_ANVIL.get(), properties()));
     public static final RegistryObject<Item> DRAGON_HORSE_ARMOR = ITEMS.register("dragon_horse_armor",
             () -> new DragonHorseArmorItem(properties().stacksTo(1).fireResistant()));
 
