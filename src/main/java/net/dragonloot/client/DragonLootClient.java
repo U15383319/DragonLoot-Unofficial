@@ -1,6 +1,11 @@
 package net.dragonloot.client;
 
 import net.dragonloot.DragonLoot;
+import net.dragonloot.client.render.DragonHelmetModel;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.dragonloot.client.render.DragonTridentBakedModel;
 import net.dragonloot.client.render.DragonTridentRenderer;
 import net.dragonloot.client.screen.DragonAnvilScreen;
@@ -79,6 +84,17 @@ public final class DragonLootClient {
 
     @SubscribeEvent
     public static void registerItemRenderers(RegisterClientExtensionsEvent event) {
+        event.registerItem(new IClientItemExtensions() {
+            private DragonHelmetModel model;
+
+            @Override
+            public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> original) {
+                if (model == null) {
+                    model = new DragonHelmetModel();
+                }
+                return model;
+            }
+        }, ModItems.DRAGON_HELMET);
         event.registerItem(new IClientItemExtensions() {
             private DragonShieldRenderer renderer;
 
