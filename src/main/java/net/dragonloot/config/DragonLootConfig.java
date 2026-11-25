@@ -24,6 +24,7 @@ public final class DragonLootConfig {
     private static final int DEFAULT_DRAGON_ANVIL_MAX_COST = 30;
     private static final double DEFAULT_DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER = 0.4D;
     private static final double DEFAULT_DRAGON_SWORD_ENTITY_REACH_BONUS = 0.5D;
+    private static final int DEFAULT_DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS = 20;
 
     private static final ForgeConfigSpec.IntValue SCALE_MINIMUM_DROP_AMOUNT;
     private static final ForgeConfigSpec.IntValue ADDITIONAL_SCALES_PER_PLAYER;
@@ -44,6 +45,7 @@ public final class DragonLootConfig {
     private static final ForgeConfigSpec.IntValue DRAGON_ANVIL_MAX_COST;
     private static final ForgeConfigSpec.DoubleValue DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER;
     private static final ForgeConfigSpec.DoubleValue DRAGON_SWORD_ENTITY_REACH_BONUS;
+    private static final ForgeConfigSpec.IntValue DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -76,6 +78,9 @@ public final class DragonLootConfig {
         DRAGON_SWORD_ENTITY_REACH_BONUS = builder
                 .comment("Additional entity attack reach granted while the dragon sword is in the main hand.")
                 .defineInRange("dragon_sword_entity_reach_bonus", 0.5D, 0.0D, 16.0D);
+        DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS = builder
+                .comment("Extra cooldown ticks added when the dragon axe disables a shield. 20 ticks = 1 second.")
+                .defineInRange("dragon_axe_shield_disable_bonus_ticks", DEFAULT_DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS, 0, 1200);
         SPEC = builder.build();
     }
 
@@ -101,6 +106,7 @@ public final class DragonLootConfig {
     public static int dragonAnvilMaxCost() { return getOrDefault(DRAGON_ANVIL_MAX_COST, DEFAULT_DRAGON_ANVIL_MAX_COST); }
     public static double dragonShieldDisableCooldownMultiplier() { return getOrDefault(DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER, DEFAULT_DRAGON_SHIELD_DISABLE_COOLDOWN_MULTIPLIER); }
     public static double dragonSwordEntityReachBonus() { return getOrDefault(DRAGON_SWORD_ENTITY_REACH_BONUS, DEFAULT_DRAGON_SWORD_ENTITY_REACH_BONUS); }
+    public static int dragonAxeShieldDisableBonusTicks() { return getOrDefault(DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS, DEFAULT_DRAGON_AXE_SHIELD_DISABLE_BONUS_TICKS); }
 
     private static <T> T getOrDefault(ForgeConfigSpec.ConfigValue<T> value, T fallback) {
         try {
