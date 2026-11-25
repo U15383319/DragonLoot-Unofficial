@@ -13,12 +13,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MaceItem;
 
 public class DragonMaceItem extends MaceItem {
+    private static final double VANILLA_ATTACK_DAMAGE = 5.0D;
+
     public DragonMaceItem(Properties properties) {
-        super(properties.component(DataComponents.TOOL, createToolProperties()).attributes(createAttributes().withModifierAdded(
-                Attributes.KNOCKBACK_RESISTANCE,
-                new AttributeModifier(DragonLoot.id("dragon_mace_knockback_resistance"),
-                        DragonLootConfig.dragonMaceKnockbackResistance(), AttributeModifier.Operation.ADD_VALUE),
-                EquipmentSlotGroup.MAINHAND)));
+        super(properties.component(DataComponents.TOOL, createToolProperties())
+                .attributes(createAttributes()
+                        .withModifierAdded(Attributes.ATTACK_DAMAGE,
+                                new AttributeModifier(BASE_ATTACK_DAMAGE_ID,
+                                        VANILLA_ATTACK_DAMAGE + DragonLootConfig.itemBaseDamage() / 5.0D,
+                                        AttributeModifier.Operation.ADD_VALUE),
+                                EquipmentSlotGroup.MAINHAND)
+                        .withModifierAdded(Attributes.KNOCKBACK_RESISTANCE,
+                                new AttributeModifier(DragonLoot.id("dragon_mace_knockback_resistance"),
+                                        DragonLootConfig.dragonMaceKnockbackResistance(), AttributeModifier.Operation.ADD_VALUE),
+                                EquipmentSlotGroup.MAINHAND)));
     }
 
     @Override
