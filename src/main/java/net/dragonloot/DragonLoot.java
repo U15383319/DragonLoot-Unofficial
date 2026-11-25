@@ -4,16 +4,6 @@ import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModBlocks;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
-import net.dragonloot.init.ModMenus;
-import net.dragonloot.init.ModRecipes;
-import net.dragonloot.menu.DragonSmithingMenu;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.level.block.Blocks;
 import net.dragonloot.item.DragonCrossbowItem;
 import net.minecraft.util.Mth;
 import net.minecraft.resources.ResourceLocation;
@@ -24,18 +14,12 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -59,9 +43,6 @@ public class DragonLoot {
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModEntities.ENTITY_TYPES.register(modBus);
-        ModMenus.MENUS.register(modBus);
-        ModRecipes.SERIALIZERS.register(modBus);
-        ModRecipes.TYPES.register(modBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DragonLootConfig.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
@@ -72,16 +53,11 @@ public class DragonLoot {
     }
 
     @SubscribeEvent
-    public void onSmithingTableUse(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getPlayer().isShiftKeyDown() || !event.getWorld().getBlockState(event.getPos()).is(Blocks.SMITHING_TABLE)) {
-            return;
-        }
-        event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.sidedSuccess(event.getWorld().isClientSide));
-        if (event.getPlayer() instanceof ServerPlayer player) {
-            NetworkHooks.openGui(player, new SimpleMenuProvider((id, inventory, user) ->
-                    new DragonSmithingMenu(id, inventory, ContainerLevelAccess.create(event.getWorld(), event.getPos())),
-                    new TranslatableComponent("container.upgrade")));
+    public void onMissingItems(RegistryEvent.MissingMappings<Item> event) {
+        for (var mapping : event.getMappings(MOD_ID)) {
+            if (mapping.key.equals(id("dragon_upgrade_smithing_template"))) {
+                mapping.ignore();
+            }
         }
     }
 
@@ -210,18 +186,6 @@ public class DragonLoot {
 
         private boolean hasNewCooldown(Object active) {
             return active != null && active != previous;
-        }
-    }
-
-    @SubscribeEvent
-    public void onLootTableLoad(LootTableLoadEvent event) {
-        if (new ResourceLocation("minecraft", "chests/end_city_treasure").equals(event.getName())) {
-            event.getTable().addPool(LootPool.lootPool()
-                    .name("dragonloot_dragon_upgrade_template")
-                    .setRolls(ConstantValue.exactly(1.0F))
-                    .add(LootItem.lootTableItem(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()))
-                    .when(LootItemRandomChanceCondition.randomChance(0.25F))
-                    .build());
         }
     }
 }

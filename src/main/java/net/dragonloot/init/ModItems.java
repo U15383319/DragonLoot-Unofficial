@@ -14,8 +14,6 @@ public final class ModItems {
 
     public static final RegistryObject<Item> DRAGON_SCALE = ITEMS.register("dragon_scale",
             () -> new DragonScaleItem(properties().fireResistant()));
-    public static final RegistryObject<Item> DRAGON_UPGRADE_SMITHING_TEMPLATE = ITEMS.register("dragon_upgrade_smithing_template",
-            () -> new DragonUpgradeTemplateItem(properties()));
     public static final RegistryObject<Item> DRAGON_ANVIL = ITEMS.register("dragon_anvil",
             () -> new BlockItem(ModBlocks.DRAGON_ANVIL.get(), properties()));
     public static final RegistryObject<Item> DRAGON_HORSE_ARMOR = ITEMS.register("dragon_horse_armor",

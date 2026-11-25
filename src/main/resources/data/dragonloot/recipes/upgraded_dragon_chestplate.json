@@ -1,5 +1,5 @@
 {
-  "type": "dragonloot:smithing_transform",
+  "type": "minecraft:smithing",
   "base": {
     "item": "dragonloot:dragon_chestplate"
   },
@@ -8,8 +8,5 @@
   },
   "result": {
     "item": "dragonloot:upgraded_dragon_chestplate"
-  },
-  "template": {
-    "item": "dragonloot:dragon_upgrade_smithing_template"
   }
 }
