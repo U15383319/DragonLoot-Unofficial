@@ -28,7 +28,7 @@ public final class ModItems {
             () -> new DragonHorseArmorItem(new Item.Properties().stacksTo(1).fireResistant()));
 
     public static final RegistryObject<Item> DRAGON_HELMET = ITEMS.register("dragon_helmet",
-            () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, ArmorItem.Type.HELMET, new Item.Properties().fireResistant()));
+            () -> new DragonHelmetItem(new Item.Properties().fireResistant()));
     public static final RegistryObject<Item> DRAGON_CHESTPLATE = ITEMS.register("dragon_chestplate",
             () -> new DragonArmorItem(DragonArmorMaterial.INSTANCE, ArmorItem.Type.CHESTPLATE, new Item.Properties().fireResistant()));
     public static final RegistryObject<Item> DRAGON_LEGGINGS = ITEMS.register("dragon_leggings",
