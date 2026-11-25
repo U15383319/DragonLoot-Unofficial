@@ -80,7 +80,7 @@ public final class ModItems {
                         ResourceLocation.withDefaultNamespace("item/empty_slot_hoe"),
                         ResourceLocation.withDefaultNamespace("item/empty_slot_shovel")
                 ),
-                List.of(DragonLoot.id("item/dragon_scale"))
+                List.of(DragonLoot.id("item/empty_slot_dragon_scale"))
         );
     }
 }

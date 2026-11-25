@@ -22,26 +22,23 @@
         "dragon_armor": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
+                "slots": {
+                    "occupied": {
+                        "min": 4
+                    }
+                },
                 "items": [
                     {
-                        "items": [
-                            "dragonloot:dragon_helmet"
-                        ]
+                        "items": "dragonloot:dragon_helmet"
                     },
                     {
-                        "items": [
-                            "dragonloot:dragon_chestplate"
-                        ]
+                        "items": "dragonloot:dragon_chestplate"
                     },
                     {
-                        "items": [
-                            "dragonloot:dragon_leggings"
-                        ]
+                        "items": "dragonloot:dragon_leggings"
                     },
                     {
-                        "items": [
-                            "dragonloot:dragon_boots"
-                        ]
+                        "items": "dragonloot:dragon_boots"
                     }
                 ]
             }
