@@ -1,5 +1,5 @@
 {
-  "type": "dragonloot:smithing_transform",
+  "type": "minecraft:smithing",
   "base": {
     "item": "minecraft:anvil"
   },
@@ -8,8 +8,5 @@
   },
   "result": {
     "item": "dragonloot:dragon_anvil"
-  },
-  "template": {
-    "item": "dragonloot:dragon_upgrade_smithing_template"
   }
 }

@@ -4,16 +4,7 @@ import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModBlocks;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
-import net.dragonloot.init.ModMenus;
-import net.dragonloot.init.ModRecipes;
 import net.dragonloot.init.ModAttributes;
-import net.dragonloot.menu.DragonSmithingMenu;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.inventory.container.SimpleNamedContainerProvider;
-import net.minecraft.util.IWorldPosCallable;
-import net.minecraft.block.Blocks;
 import net.dragonloot.item.DragonCrossbowItem;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -24,18 +15,12 @@ import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.item.Item;
 import net.minecraft.util.CooldownTracker;
 import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.ItemLootEntry;
-import net.minecraft.loot.conditions.RandomChance;
-import net.minecraft.loot.ConstantRange;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -59,11 +44,7 @@ public class DragonLoot {
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModEntities.ENTITY_TYPES.register(modBus);
-        ModMenus.MENUS.register(modBus);
-        ModRecipes.SERIALIZERS.register(modBus);
         ModAttributes.ATTRIBUTES.register(modBus);
-        modBus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) ->
-                event.enqueueWork(ModRecipes::registerType));
         net.dragonloot.network.DragonLootNetwork.register();
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DragonLootConfig.SPEC);
@@ -75,17 +56,11 @@ public class DragonLoot {
     }
 
     @SubscribeEvent
-    public void onSmithingTableUse(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getPlayer().isShiftKeyDown() || !event.getWorld().getBlockState(event.getPos()).is(Blocks.SMITHING_TABLE)) {
-            return;
-        }
-        event.setCanceled(true);
-        event.setCancellationResult(ActionResultType.sidedSuccess(event.getWorld().isClientSide));
-        if (event.getPlayer() instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-            NetworkHooks.openGui(player, new SimpleNamedContainerProvider((id, inventory, user) ->
-                    new DragonSmithingMenu(id, inventory, IWorldPosCallable.create(event.getWorld(), event.getPos())),
-                    new TranslationTextComponent("container.upgrade")));
+    public void onMissingItems(RegistryEvent.MissingMappings<Item> event) {
+        for (var mapping : event.getMappings(MOD_ID)) {
+            if (mapping.key.equals(id("dragon_upgrade_smithing_template"))) {
+                mapping.ignore();
+            }
         }
     }
 
@@ -219,18 +194,6 @@ public class DragonLoot {
 
         private boolean hasNewCooldown(Object active) {
             return active != null && active != previous;
-        }
-    }
-
-    @SubscribeEvent
-    public void onLootTableLoad(LootTableLoadEvent event) {
-        if (new ResourceLocation("minecraft", "chests/end_city_treasure").equals(event.getName())) {
-            event.getTable().addPool(LootPool.lootPool()
-                    .name("dragonloot_dragon_upgrade_template")
-                    .setRolls(ConstantRange.exactly(1))
-                    .add(ItemLootEntry.lootTableItem(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()))
-                    .when(RandomChance.randomChance(0.25F))
-                    .build());
         }
     }
 }

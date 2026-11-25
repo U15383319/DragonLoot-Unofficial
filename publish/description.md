@@ -5,7 +5,7 @@ An unofficial Forge port of [DragonLoot](https://github.com/GitPois1x/DragonLoot
 ## Differences from the original
 
 - Requires Minecraft 1.16.5, Forge 36.2.42 or later in the 36.x series, and Java 11.
-- Dragon upgrades use a dedicated smithing template found in End City treasure chests. Duplicate it with seven popped chorus fruit and an obsidian block. Recipes that accept Netherite Plus gear in the Fabric version use vanilla gear here.
+- Upgrade compatible gear with dragon scales at the vanilla smithing table. Recipes that accept Netherite Plus gear in the Fabric version use vanilla gear here.
 - Adds a dragon shield that recovers in 40% of the standard disable time by default.
 - The dragon sword has 0.5 blocks of extra melee reach by default.
 - The dragon axe adds 1 second to the cooldown of shields it disables by default.

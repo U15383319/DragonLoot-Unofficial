@@ -5,9 +5,6 @@ import net.dragonloot.client.render.DragonTridentBakedModel;
 import net.dragonloot.client.render.DragonTridentRenderer;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
-import net.dragonloot.init.ModMenus;
-import net.dragonloot.client.screen.DragonSmithingScreen;
-import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.Atlases;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -49,7 +46,6 @@ public final class DragonLootClient {
 
         RenderingRegistry.registerEntityRenderingHandler(ModEntities.DRAGON_TRIDENT.get(), DragonTridentRenderer::new);
         event.enqueueWork(() -> {
-            ScreenManager.register(ModMenus.DRAGON_SMITHING.get(), DragonSmithingScreen::new);
             ItemModelsProperties.register(ModItems.DRAGON_BOW.get(), new ResourceLocation("pull"),
                     (stack, level, entity) -> entity == null || entity.getUseItem() != stack ? 0.0F
                             : (float) (stack.getUseDuration() - entity.getUseItemRemainingTicks()) / 20.0F);

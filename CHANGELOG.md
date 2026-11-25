@@ -4,8 +4,8 @@
 
 - Extend a successful dragon axe shield disable by 20 ticks by default. The dragon shield applies its cooldown multiplier to the combined duration.
 - Use Riptide with the dragon trident in modded liquids.
-- Update the dragon shield and Dragon Upgrade Smithing Template textures.
-- Duplicate the upgrade template with seven popped chorus fruit and an obsidian block.
+- Update the dragon shield textures.
+- Use the vanilla two-slot smithing table for all dragon gear upgrades.
 - Require all four dragon armor pieces for the armor advancement and a dragon scale for recipe unlocks.
 
 ## 1.0.0

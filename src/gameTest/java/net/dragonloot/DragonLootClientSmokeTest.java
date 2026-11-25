@@ -6,10 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.dragonloot.compat.jei.DragonSmithingCategory;
-import net.dragonloot.client.screen.DragonSmithingScreen;
+import mezz.jei.api.constants.VanillaRecipeCategoryUid;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.client.gui.screen.inventory.SmithingTableScreen;
 import net.dragonloot.init.ModItems;
-import net.dragonloot.menu.DragonSmithingMenu;
 import net.minecraft.client.settings.PointOfView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ScreenShotHelper;
@@ -19,14 +19,11 @@ import net.minecraft.client.renderer.Atlases;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.util.registry.DynamicRegistries;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.Difficulty;
 import net.minecraft.util.Hand;
-import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.datafix.codec.DatapackCodec;
@@ -40,7 +37,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.nio.file.Files;
@@ -125,26 +121,29 @@ public class DragonLootClientSmokeTest {
                 var player = client.getSingleplayerServer().getPlayerList().getPlayer(client.player.getUUID());
                 var pos = player.blockPosition().east();
                 player.level.setBlock(pos, Blocks.SMITHING_TABLE.defaultBlockState(), 3);
-                NetworkHooks.openGui(player, new SimpleNamedContainerProvider((id, inventory, user) ->
-                        new DragonSmithingMenu(id, inventory, IWorldPosCallable.create(player.level, pos)),
-                        new TranslationTextComponent("container.upgrade")));
-                player.containerMenu.getSlot(0).set(new ItemStack(ModItems.DRAGON_UPGRADE_SMITHING_TEMPLATE.get()));
-                player.containerMenu.getSlot(1).set(new ItemStack(Items.NETHERITE_SWORD));
-                player.containerMenu.getSlot(2).set(new ItemStack(ModItems.DRAGON_SCALE.get()));
+                player.openMenu(Blocks.SMITHING_TABLE.defaultBlockState().getMenuProvider(player.level, pos));
+                player.containerMenu.getSlot(0).set(new ItemStack(Items.NETHERITE_SWORD));
+                player.containerMenu.getSlot(1).set(new ItemStack(ModItems.DRAGON_SCALE.get()));
                 player.containerMenu.broadcastChanges();
             });
             stage = 4;
             ticks = 0;
-        } else if (stage == 4 && client.screen instanceof DragonSmithingScreen && ticks > 60) {
+        } else if (stage == 4 && client.screen instanceof SmithingTableScreen && ticks > 60) {
             capture(client, "smithing");
+            if (client.player.containerMenu.getSlot(2).getItem().getItem() != ModItems.DRAGON_SWORD.get()) {
+                throw new IllegalStateException("The vanilla smithing screen must show the dragon sword result");
+            }
             if (JeiProbe.runtime == null) {
                 throw new IllegalStateException("JEI runtime must be available");
             }
-            var categories = JeiProbe.runtime.getRecipeManager().getRecipeCategories(List.of(DragonSmithingCategory.TYPE));
-            if (categories.size() != 1 || JeiProbe.runtime.getRecipeManager().getRecipes(categories.get(0)).size() != 16) {
-                throw new IllegalStateException("JEI must display all 16 template upgrade recipes");
+            var manager = JeiProbe.runtime.getRecipeManager();
+            var categories = manager.getRecipeCategories(List.of(VanillaRecipeCategoryUid.SMITHING));
+            if (categories.size() != 1 || manager.getRecipes(categories.get(0)).stream()
+                    .filter(recipe -> recipe instanceof IRecipe<?> && ((IRecipe<?>) recipe).getId().getNamespace().equals(DragonLoot.MOD_ID))
+                    .count() != 16) {
+                throw new IllegalStateException("JEI must display all 16 dragon recipes in its vanilla smithing category");
             }
-            JeiProbe.runtime.getRecipesGui().showCategories(List.of(DragonSmithingCategory.TYPE));
+            JeiProbe.runtime.getRecipesGui().showCategories(List.of(VanillaRecipeCategoryUid.SMITHING));
             stage = 9;
             ticks = 0;
         } else if (stage == 9 && ticks > 40) {
