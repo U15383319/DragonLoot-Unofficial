@@ -4,20 +4,17 @@ import net.dragonloot.config.DragonLootConfig;
 import net.dragonloot.init.ModBlocks;
 import net.dragonloot.init.ModEntities;
 import net.dragonloot.init.ModItems;
-import net.dragonloot.item.DragonCrossbowItem;
 import net.minecraft.util.Mth;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
 import net.minecraftforge.event.TickEvent;
@@ -39,12 +36,13 @@ public class DragonLoot {
     private final Map<Player, Object> adjustedDragonShieldCooldowns = new WeakHashMap<>();
 
     public DragonLoot() {
+        DragonLootConfig.loadBeforeRegistration();
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DragonLootConfig.SPEC, DragonLootConfig.FILE_NAME);
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModEntities.ENTITY_TYPES.register(modBus);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DragonLootConfig.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -82,19 +80,6 @@ public class DragonLoot {
         for (int i = 0; i < total; i++) {
             event.getDrops().add(new ItemEntity(dragon.level, dragon.getX(), dragon.getY(), dragon.getZ(),
                     new ItemStack(ModItems.DRAGON_SCALE.get())));
-        }
-    }
-
-    @SubscribeEvent
-    public void onDragonCrossbowImpact(ProjectileImpactEvent event) {
-        if (!(event.getProjectile() instanceof AbstractArrow arrow)
-                || !(arrow.getOwner() instanceof net.minecraft.world.entity.LivingEntity owner)) {
-            return;
-        }
-
-        if (owner.getMainHandItem().getItem() instanceof DragonCrossbowItem
-                || owner.getOffhandItem().getItem() instanceof DragonCrossbowItem) {
-            arrow.setBaseDamage(arrow.getBaseDamage() * 1.25D + 1.0D);
         }
     }
 

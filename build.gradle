@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.38'
 }
 
 version = mod_version
@@ -80,7 +81,8 @@ minecraft {
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.disableRefMap', 'true'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "$projectDir/build/createSrgToMcp/output.srg"
 
             mods {
                 "${mod_id}" {
@@ -156,7 +158,13 @@ repositories {
     // }
 }
 
+mixin {
+    add sourceSets.main, 'dragonloot.refmap.json'
+    config 'dragonloot.mixins.json'
+}
+
 dependencies {
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     // Specify the version of Minecraft to use.
     // Any artifact can be supplied so long as it has a "userdev" classifier artifact and is a compatible patcher artifact.
     // The "userdev" classifier will be requested and setup by ForgeGradle.
@@ -218,6 +226,7 @@ tasks.named('jar', Jar).configure {
     }
     manifest {
         attributes([
+                'MixinConfigs'            : 'dragonloot.mixins.json',
                 'Specification-Title'     : mod_id,
                 'Specification-Vendor'    : mod_authors,
                 'Specification-Version'   : '1', // We are version 1 of ourselves
