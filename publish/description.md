@@ -5,7 +5,7 @@ An unofficial NeoForge port of [DragonLoot](https://github.com/GitPois1x/DragonL
 ## Differences from the original
 
 - Requires Minecraft 1.21.1, NeoForge 21.1.266 or later in the 21.1 series, and Java 21.
-- Dragon upgrades use a dedicated smithing template found in End City treasure chests. Duplicate it with seven popped chorus fruit, an obsidian block, and an existing template. Recipes that accept Netherite Plus gear in the Fabric version use vanilla gear here.
+- Dragon upgrades use a dedicated smithing template found in End City treasure chests. Duplicate it with seven popped chorus fruit, an obsidian block, and an existing template. Netherite Plus gear is unsupported for dragon upgrades.
 - Adds a dragon shield that recovers in 40% of the standard disable time by default.
 - The dragon sword has 0.5 blocks of extra melee reach by default.
 - The dragon mace grants 10% knockback resistance in the main hand by default.
